@@ -1703,7 +1703,32 @@ function pushPresence(patch){if(room&&!roomDead)room.presence(patch).catch(()=>{
 function roomGone(){roomDead=true;room=null;for(const[k,o]of others){disposeAvatar(o.g);others.delete(k);}renderPeople();}
 const use=n=>window.claude&&window.claude.use?window.claude.use(n):Promise.resolve(null);
 use('user').then(u=>{user=u;if(!u)return;return u.me().then(m=>{const inp=$('nick');if(m&&m.name&&!inp.value)inp.value=clean(m.name,12);});}).catch(()=>{});
-use('room').then(r=>{
+/* claude.ai 밖(깃허브 등)에서 열리면 Firebase Realtime Database 로 같은 '방'을 흉내낸다.
+   presence(patch) · onPeers(cb) 모양을 그대로 맞춰서 아래 코드는 바꾸지 않는다. 이 설정값은 공개용(비밀 아님) — 보호는 DB 규칙이 한다 */
+const FB_CFG={apiKey:"AIzaSyCfFrhDFNPgJjGpaV6CkkUJPdvUIp3mkfM",authDomain:"sangju-museum.firebaseapp.com",
+  databaseURL:"https://sangju-museum-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"sangju-museum",
+  storageBucket:"sangju-museum.firebasestorage.app",messagingSenderId:"854512099471",appId:"1:854512099471:web:d5cd64483456cdf10d50fa"};
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}
+async function firebaseRoom(){
+  try{
+    if(!window.firebase){await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js');}
+    const fb=window.firebase;const app=fb.apps.length?fb.app():fb.initializeApp(FB_CFG);const db=app.database();
+    const id='p'+Math.random().toString(36).slice(2,10)+Date.now().toString(36),me_=db.ref('momo/peers/'+id);
+    me_.onDisconnect().remove();addEventListener('pagehide',()=>{me_.remove().catch(()=>{});});
+    const state={};let last=0,timer=null;
+    const flush=()=>{timer=null;if(typeof state.x!=='number')return Promise.resolve();last=performance.now();
+      const v=JSON.parse(JSON.stringify(state));v.t=fb.database.ServerValue.TIMESTAMP;return me_.set(v);};
+    const peers=new Map();let cbs=null;const emit=()=>{if(cbs)cbs({peers:[...peers.entries()].map(([k,p])=>({peer:k,presence:p,kind:'viewer',sameTab:k===id}))});};
+    return {
+      presence(patch){Object.assign(state,patch);   /* 초당 4번까지만 보낸다 (무료 사용량 아끼기) */
+        const wait=250-(performance.now()-last);if(wait<=0)return flush();if(!timer)timer=setTimeout(()=>flush().catch(()=>{}),wait);return Promise.resolve();},
+      onPeers(cb,gone){cbs=cb;const ref=db.ref('momo/peers');
+        const up=s=>{peers.set(s.key,s.val()||{});emit();};
+        ref.on('child_added',up,()=>gone&&gone());ref.on('child_changed',up);ref.on('child_removed',s=>{peers.delete(s.key);emit();});}
+    };
+  }catch(e){return null;}
+}
+use('room').then(r=>r||firebaseRoom()).then(r=>{
   if(!r){roomDead=true;renderPeople();return;}
   room=r;
   r.onPeers(c=>syncPeers(c.peers),()=>roomGone());
