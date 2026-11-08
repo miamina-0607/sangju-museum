@@ -1788,7 +1788,7 @@ const endDrag=e=>drags.delete(e.pointerId);canvas.addEventListener('pointerup',e
 canvas.addEventListener('wheel',e=>{e.preventDefault();camDist=clamp(camDist*Math.exp(e.deltaY*.001),2.4,20);},{passive:false});
 const stickEl=$('stick'),nub=$('nub');
 function setStick(e){const r=stickEl.getBoundingClientRect();let dx=(e.clientX-r.left-54)/44,dy=(e.clientY-r.top-54)/44;const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l;}stick.x=dx;stick.y=dy;nub.style.transform=`translate(${dx*32}px,${dy*32}px)`;nub.classList.toggle('run',Math.hypot(dx,dy)>.92);}
-stickEl.addEventListener('pointerdown',e=>{stick.id=e.pointerId;stickEl.setPointerCapture(e.pointerId);setStick(e);});
+stickEl.addEventListener('pointerdown',e=>{stick.id=e.pointerId;try{stickEl.setPointerCapture(e.pointerId);}catch(_){}setStick(e);});
 stickEl.addEventListener('pointermove',e=>{if(e.pointerId===stick.id)setStick(e);});
 const endStick=e=>{if(e.pointerId===stick.id){stick.id=null;stick.x=stick.y=0;nub.style.transform='';nub.classList.remove('run');}};
 stickEl.addEventListener('pointerup',endStick);stickEl.addEventListener('pointercancel',endStick);
@@ -2032,9 +2032,10 @@ function makeHoop(){const g=new THREE.Group();g.position.set(0,.31,.8);const spi
   const h=new THREE.Mesh(hoopGeo,hoopM);h.rotation.y=Math.PI/2;h.castShadow=true;spin.add(h);
   const stick=new THREE.Mesh(stickGeo,stickM);stick.castShadow=true;g.add(stick);
   const hook=new THREE.Mesh(new THREE.TorusGeometry(.04,.008,6,10,Math.PI),stickM);hook.position.copy(HOOK);hook.rotation.y=Math.PI/2;g.add(hook);
-  g.userData.spin=spin;g.userData.stick=stick;setStick(g,new THREE.Vector3(.18,.42,-.62));return g;}
+  g.userData.spin=spin;g.userData.stick=stick;setHoopStick(g,new THREE.Vector3(.18,.42,-.62));return g;}
 const _hA=new THREE.Vector3(),_hD=new THREE.Vector3(),_up=new THREE.Vector3(0,1,0);
-function setStick(hg,hand){const s=hg.userData.stick;_hD.subVectors(HOOK,hand);const l=_hD.length();
+/* (조이스틱의 setStick 과 이름이 겹치지 않게) */
+function setHoopStick(hg,hand){const s=hg.userData.stick;_hD.subVectors(HOOK,hand);const l=_hD.length();
   s.position.copy(hand).addScaledVector(_hD,.5);s.scale.set(1,l,1);s.quaternion.setFromUnitVectors(_up,_hD.normalize());}
 /* 굴렁대를 쥐는 팔: 석장승·Hidden·사람은 한 팔을 앞으로 내밀어 고정한다 (해태·천인은 팔 대신 굴렁대만) */
 function hoopArm(u){return u.kind===5?u.armR:u.kind===1?u.armN:u.kind===0?u.armR:null;}
@@ -2048,7 +2049,7 @@ function spinHoop(o,speed,dt){if(!o.hoop)return;o.hoopA=(o.hoopA||0)+speed*dt/.3
   if(!o.hoopHand){arm.rotation.set(0,0,0);o.g.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(arm);if(b.isEmpty())return;
     const p=new THREE.Vector3((b.min.x+b.max.x)/2,b.min.y+.03,(b.min.z+b.max.z)/2);o.hoopHand=arm.worldToLocal(p);}
   arm.rotation.set(-.7,0,0);   /* 휘두르지 않고 앞으로 내민 채 고정 */
-  o.g.updateMatrixWorld(true);_hA.copy(o.hoopHand);arm.localToWorld(_hA);o.hoop.worldToLocal(_hA);setStick(o.hoop,_hA);}
+  o.g.updateMatrixWorld(true);_hA.copy(o.hoopHand);arm.localToWorld(_hA);o.hoop.worldToLocal(_hA);setHoopStick(o.hoop,_hA);}
 /* 소리 */
 function gameSound(kind,x,z,delay=0){const o=sfxOut(x,z);if(!o)return;o.t+=delay;
   if(kind==='pot'){sfxThump(o,560,.14*o.vol,.5);sfxThump(o,840,.05*o.vol,.35);}
