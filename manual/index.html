@@ -1,0 +1,295 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>꼬마논 모모 안내서</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+/* 레이아웃: 논두렁처럼 가는 초록 띠가 각 장을 나누는 한 단 안내서. 왼쪽 목차(넓은 화면)·카드 격자(캐릭터) */
+:root{
+  --bg:#f1f3ee; --paper:#fbfcf8; --ink:#1d2822; --ink-soft:#56635a; --line:rgba(29,40,34,.14);
+  --paddy:#2c6a5a; --paddy-soft:rgba(44,106,90,.10); --grain:#b98118; --grain-soft:rgba(201,143,29,.14); --key:#e7ebe3;
+  --display:"Gowun Batang","Noto Serif KR",serif; --body:"Gowun Dodum","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141a17; --paper:#1b2320; --ink:#e6ece7; --ink-soft:#a3b0a7; --line:rgba(230,236,231,.13);
+  --paddy:#6fb8a2; --paddy-soft:rgba(111,184,162,.14); --grain:#e2b14c; --grain-soft:rgba(226,177,76,.16); --key:#26302c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a17; --paper:#1b2320; --ink:#e6ece7; --ink-soft:#a3b0a7; --line:rgba(230,236,231,.13);
+  --paddy:#6fb8a2; --paddy-soft:rgba(111,184,162,.14); --grain:#e2b14c; --grain-soft:rgba(226,177,76,.16); --key:#26302c; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:15px/1.7 var(--body)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px}
+nav{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:start;font-size:13px}
+nav b{display:block;font:700 13px var(--display);color:var(--paddy);margin-bottom:8px;letter-spacing:.04em}
+nav ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+nav a{display:block;color:var(--ink-soft);text-decoration:none;padding:4px 10px;border-radius:8px}
+nav a:hover{background:var(--paddy-soft);color:var(--ink)}
+main{min-width:0;display:grid;gap:44px}
+header h1{margin:0;font:700 clamp(30px,5vw,44px)/1.15 var(--display);text-wrap:balance}
+header p.lead{margin:12px 0 0;max-width:62ch;color:var(--ink-soft);font-size:16px}
+.addr{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:18px}
+.addr div{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-width:0}
+.addr small{display:block;color:var(--ink-soft);font-size:12px;letter-spacing:.03em}
+.addr a{color:var(--paddy);font-weight:700;overflow-wrap:anywhere}
+section>h2{margin:0 0 4px;font:700 24px/1.3 var(--display);display:flex;align-items:baseline;gap:10px;padding-top:14px;border-top:3px solid var(--paddy)}
+section>h2 .no{font:400 13px var(--body);color:var(--grain);letter-spacing:.06em}
+section>p.sub{margin:0 0 16px;color:var(--ink-soft);max-width:64ch}
+h3{font:700 18px/1.35 var(--display);margin:0}
+h4{font:700 13px var(--body);color:var(--paddy);margin:12px 0 4px;letter-spacing:.03em}
+p{margin:0}
+ul.plain{margin:0;padding-left:1.1em;display:grid;gap:4px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 12px var(--body);color:var(--ink-soft);letter-spacing:.04em;background:var(--paddy-soft)}
+tr:last-child td{border-bottom:0}
+kbd{display:inline-block;min-width:1.6em;text-align:center;font:13px/1.5 var(--body);padding:0 6px;border-radius:6px;background:var(--key);border:1px solid var(--line);border-bottom-width:2px;color:var(--ink)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.card .ph{background:var(--grain-soft);aspect-ratio:5/4;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card .ph img{width:100%;height:100%;object-fit:contain}
+.card .ph.npc img{object-fit:cover}
+.card .in{padding:14px 16px 16px;display:grid;gap:6px;min-width:0}
+.card .hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.chip{display:inline-block;font-size:12px;padding:1px 9px;border-radius:999px;background:var(--paddy-soft);color:var(--paddy);white-space:nowrap}
+.chip.g{background:var(--grain-soft);color:var(--grain)}
+.meta{font-size:13px;color:var(--ink-soft)}
+.lines{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.lines span{font-size:13px;padding:2px 10px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.acts{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:14px}
+.acts li{display:flex;justify-content:space-between;gap:10px}
+.acts .t{color:var(--ink-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:8px;min-width:0}
+.box h3{display:flex;gap:8px;align-items:center}
+.note{font-size:13px;color:var(--ink-soft);background:var(--grain-soft);border-radius:12px;padding:10px 14px}
+.steps{margin:0;padding-left:1.3em;display:grid;gap:6px}
+footer{color:var(--ink-soft);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
+:focus-visible{outline:2px solid var(--grain);outline-offset:2px}
+@media (max-width:820px){.wrap{grid-template-columns:minmax(0,1fr);gap:24px}nav{position:static}nav ol{display:flex;flex-wrap:wrap;gap:4px}nav a{background:var(--paper);border:1px solid var(--line)}}
+@media (prefers-reduced-motion:no-preference){nav a{transition:background .15s}}
+</style>
+
+<div class="wrap">
+<nav aria-label="목차"><b>목차</b><ol>
+  <li><a href="#start">시작하기</a></li>
+  <li><a href="#controls">조작법</a></li>
+  <li><a href="#players">내 캐릭터 5종</a></li>
+  <li><a href="#common">모두의 공통 동작</a></li>
+  <li><a href="#play">놀이</a></li>
+  <li><a href="#npc">동물 친구 8마리</a></li>
+  <li><a href="#places">장소 안내</a></li>
+  <li><a href="#together">함께 보기</a></li>
+</ol></nav>
+
+<main>
+<header>
+  <h1>꼬마논 모모 안내서</h1>
+  <p class="lead">박물관 앞마당의 작은 논 ‘모모’를 걸어 다니는 3D 공간입니다. 다섯 캐릭터 중 하나로 들어가 계절을 바꾸고, 동물 친구들을 만나고, 전통놀이와 계절 놀이를 함께 즐길 수 있어요. 이 안내서에는 캐릭터, 조작, 놀이, 동물 친구들의 성격까지 모두 담았습니다.</p>
+</header>
+
+<section id="start">
+  <h2><span class="no">01</span>시작하기</h2>
+  <p class="sub">처음 열면 들어가기 창이 나옵니다. 이름과 캐릭터를 고르고 <b>들어가기</b>를 누르면 논두렁 앞에서 시작해요.</p>
+  <div class="grid2">
+    <div class="box"><h3>이름 정하기</h3>
+      <ul class="plain">
+        <li><b>직접 적기</b>: 12자까지 적을 수 있어요. 비워 두면 ‘손님’이 됩니다.</li>
+        <li><b>🎲 랜덤 유물 이름</b>: 빗살무늬토기, 백자달항아리, 반달돌칼, 측우기, 가락바퀴, 꽃신 등 유물 이름 50개 중 하나가 나와요. 옆의 🎲를 누르면 다시 뽑아요.</li>
+        <li>이름과 캐릭터는 다음에 들어올 때를 위해 기억해 둬요.</li>
+      </ul></div>
+    <div class="box"><h3>화면 구성</h3>
+      <ul class="plain">
+        <li><b>왼쪽 위</b>: 지금 계절 설명과 온라인 관람 링크. 휴대폰에서는 ▾/▴ 버튼으로 접고 펼쳐요(처음엔 접혀 있음).</li>
+        <li><b>오른쪽 위</b>: 지금 함께 있는 사람 목록, 그 아래 <b>📖 안내서</b>와 <b>🗺️ 지도</b> 아이콘. 지도는 화면 가운데 크게 열리고, 위쪽이 박물관이에요. 나는 빨간 화살표, 다른 사람은 옷 색 점, 동물 친구는 흰 점이에요. 바깥을 누르거나 ✕, <kbd>Esc</kbd>로 닫아요.</li>
+        <li><b>아래</b>: 계절 버튼(봄·여름·가을·겨울), 말하기 칸, 동작 버튼줄. 버튼은 둥글고 반투명해서 장면이 비쳐 보여요.</li>
+      </ul></div>
+  </div>
+</section>
+
+<section id="controls">
+  <h2><span class="no">02</span>조작법</h2>
+  <p class="sub">컴퓨터는 키보드와 마우스, 휴대폰은 조이스틱과 버튼으로 움직여요. 버튼에는 괄호 안에 단축키가 적혀 있어요(휴대폰에서는 숨김).</p>
+  <div class="tbl"><table>
+    <thead><tr><th>하고 싶은 것</th><th>컴퓨터</th><th>휴대폰</th></tr></thead>
+    <tbody>
+      <tr><td>걷기</td><td><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 또는 방향키</td><td>왼쪽 아래 조이스틱</td></tr>
+      <tr><td>달리기</td><td><kbd>Shift</kbd>를 누른 채 걷기</td><td>조이스틱을 바깥 테두리까지 밀기(가운데가 금색으로 바뀜)</td></tr>
+      <tr><td>둘러보기 · 확대</td><td>화면 끌기 · 마우스 휠</td><td>화면 끌기</td></tr>
+      <tr><td>👋 손 흔들기</td><td><kbd>F</kbd></td><td>👋 버튼</td></tr>
+      <tr><td>🪑 앉기 · 🦆 오리 타기</td><td><kbd>G</kbd></td><td>의자 근처에서 나타나는 버튼</td></tr>
+      <tr><td>🎯 전통놀이 · ⛄ 눈 굴리기 · 🌾 벼 베기 · 입구 열기</td><td><kbd>E</kbd></td><td>근처에서 나타나는 버튼</td></tr>
+      <tr><td>💬 말하기</td><td><kbd>Enter</kbd>로 칸 열고 입력 후 <kbd>Enter</kbd></td><td>말하기 칸에 입력 후 💬</td></tr>
+      <tr><td>캐릭터 특기(비파·연꽃·사진)</td><td><kbd>C</kbd></td><td>특기 버튼</td></tr>
+      <tr><td>🕊️ 날기(천인만)</td><td><kbd>Space</kbd></td><td>🕊️ 버튼</td></tr>
+      <tr><td>🔊 소리 켜고 끄기</td><td><kbd>M</kbd></td><td>🔊 버튼</td></tr>
+      <tr><td>🗺️ 지도 크게 보기 · 닫기</td><td><kbd>N</kbd> · <kbd>Esc</kbd></td><td>오른쪽 위 🗺️ 아이콘</td></tr>
+      <tr><td>📖 안내서 보기</td><td>오른쪽 위 📖 아이콘</td><td>오른쪽 위 📖 아이콘</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="players">
+  <h2><span class="no">03</span>내 캐릭터 5종</h2>
+  <p class="sub">들어갈 때 고르는 캐릭터입니다. 걸음걸이, 특기, 앉는 자세, 표정이 저마다 달라요.</p>
+  <div class="cards">
+    <article class="card"><div class="ph"><img src="img/ch_stone.png" alt="석장승 캐릭터" loading="lazy"></div><div class="in">
+      <div class="hd"><h3>석장승</h3><span class="chip">돌 장승</span></div>
+      <p>감 주머니를 멘 돌 장승. 무게감 있는 뒤뚱 걸음이라 발소리도 가장 묵직하게 “쿵” 울려요.</p>
+      <h4>표정</h4><p class="meta">손을 흔들거나 말하면 웃고, 물 댄 논에 들어가면 깜짝 놀라요.</p>
+      <h4>앉기</h4><p class="meta">발을 앞으로 살짝 내밀고 앉아요. 굴렁쇠를 굴릴 때는 한 팔을 내밀어 굴렁대를 꽉 잡아요.</p>
+    </div></article>
+    <article class="card"><div class="ph"><img src="img/ch_saebyeok.png" alt="새벽 캐릭터" loading="lazy"></div><div class="in">
+      <div class="hd"><h3>새벽</h3><span class="chip">주악천인</span></div>
+      <p>꽃관을 쓰고 비파를 타는 천인. 옷자락과 천이 바람에 살랑여요.</p>
+      <h4>특기 <kbd>C</kbd> · 날기 <kbd>Space</kbd></h4><p class="meta">🎵 비파 타기: 멈춰 서서 비파를 연주해요. 하늘로 떠올라 날 수 있어요.</p>
+      <h4>표정</h4><p class="meta">연주할 땐 노래하는 얼굴, 말할 땐 신난 얼굴, 입구 앞에선 궁금한 얼굴, 9초 넘게 가만히 있으면 생각하는 얼굴, 논물에 들어가면 놀란 얼굴.</p>
+    </div></article>
+    <article class="card"><div class="ph"><img src="img/ch_haeoreum.png" alt="해오름 캐릭터" loading="lazy"></div><div class="in">
+      <div class="hd"><h3>해오름</h3><span class="chip">연화천인</span></div>
+      <p>연꽃을 든 천인. 새벽과 같은 천인 계열로, 하늘을 날 수 있어요.</p>
+      <h4>특기 <kbd>C</kbd> · 날기 <kbd>Space</kbd></h4><p class="meta">🪷 연꽃 들기: 연꽃을 높이 들어 올려요.</p>
+      <h4>표정</h4><p class="meta">연꽃을 들면 감탄, 말할 땐 활짝 웃음, 입구 앞에선 반한 얼굴, 오래 서 있으면 집중한 얼굴, 논물에선 감탄한 얼굴.</p>
+    </div></article>
+    <article class="card"><div class="ph"><img src="img/ch_haetae.png" alt="해태 캐릭터" loading="lazy"></div><div class="in">
+      <div class="hd"><h3>해태</h3><span class="chip">불꽃 해태</span></div>
+      <p>머리에 불꽃이 이는 해태. 걸을 땐 두 발, 달릴 땐 네 발로 바꿔 힘차게 뛰어요. 불꽃에서 불티가 튀어요.</p>
+      <h4>앉기</h4><p class="meta">엉덩이를 대고 다리를 앞으로 쭉 뻗어 앉아요.</p>
+      <h4>굴렁쇠</h4><p class="meta">팔 대신 굴렁대만 붙어서 함께 굴러가요.</p>
+    </div></article>
+    <article class="card"><div class="ph"><img src="img/ch_hidden.png" alt="Hidden 캐릭터" loading="lazy"></div><div class="in">
+      <div class="hd"><h3>Hidden</h3><span class="chip">고고학자</span></div>
+      <p>배낭을 멘 고고학자. 손목시계를 찬 왼팔로 손을 흔들어요.</p>
+      <h4>특기 <kbd>C</kbd></h4><p class="meta">📷 사진 찍기: 카메라를 눈앞에 들고 잠시 겨눈 뒤 “찰칵”, 플래시가 터져요.</p>
+      <h4>절하기</h4><p class="meta">소원을 빌 때 다리는 곧게 두고 허리를 숙여 절해요.</p>
+    </div></article>
+  </div>
+</section>
+
+<section id="common">
+  <h2><span class="no">04</span>모두의 공통 동작</h2>
+  <p class="sub">어떤 캐릭터로 들어와도 할 수 있는 것들이에요.</p>
+  <div class="grid2">
+    <div class="box"><h3>💬 말풍선</h3><p>60자까지 말할 수 있어요. 7초 동안 머리 위에 둥근 말풍선으로 뜨고, 아래쪽 기록에도 남아요.</p></div>
+    <div class="box"><h3>👋 손 흔들기</h3><p>2.4초 동안 손을 흔들어요. 다른 사람 화면에도 보여요.</p></div>
+    <div class="box"><h3>🪑 앉기</h3><ul class="plain">
+      <li>벤치, 파라솔 아래 큰 네모 좌대(한 좌대에 4명), 분수 가장자리에 앉을 수 있어요.</li>
+      <li>걸어온 방향에서 몸을 돌려 앉고, 카메라가 천천히 얼굴 쪽으로 돌아요.</li>
+      <li>움직이면 일어나요. 다른 사람이 앉은 자리는 비워 둬요.</li></ul></div>
+    <div class="box"><h3>🙏 소원 빌기</h3><ul class="plain">
+      <li>소원수 가까이 가면 🙏 버튼이 나타나요. 소원을 적고 리본 색(빨강·노랑·파랑·흰색·검정)을 고르세요.</li>
+      <li>절을 하면 리본이 손에서 날아가 나뭇가지에 매듭지어져요.</li>
+      <li><b>적은 글은 어디에도 저장·전송되지 않아요.</b> 아무도 볼 수 없고, 리본 색과 자리만 남아요.</li></ul></div>
+    <div class="box"><h3>🌸 계절 바꾸기</h3><ul class="plain">
+      <li><b>봄 · 모내기 5월 말</b>: 물 댄 논에 어린 모. 바람이 잦아들면 박물관과 하늘이 논물에 비쳐요.</li>
+      <li><b>여름 · 한여름 8월</b>: 허리춤까지 자란 벼, 논두렁의 백로.</li>
+      <li><b>가을 · 황금 들판 10월</b>: 고개 숙인 이삭, 붉게 익은 감.</li>
+      <li><b>겨울 · 겨울 논 1월</b>: 그루터기와 볏가리, 내리는 눈.</li>
+      <li>계절은 <b>내 화면에서만</b> 바뀌고 다음에 들어와도 기억해요.</li></ul></div>
+    <div class="box"><h3>🔊 소리</h3><ul class="plain">
+      <li>발소리는 땅에 따라 달라요: 풀(사박), 돌길(저벅), 흙(자박), 나무 데크(통통), 진흙(질척), 물(찰박), 눈(뽀드득).</li>
+      <li>캐릭터마다 발소리 무게가 달라요. 석장승은 묵직하고, 천인은 가볍게 들려요.</li>
+      <li>바람 소리와 새소리가 은은하게 깔려요.</li></ul></div>
+    <div class="box"><h3>🚪 입구</h3><p>박물관 입구와 농경문화관 입구 앞에 서면 온라인 관람 사이트로 가는 버튼이 떠요. <kbd>E</kbd>를 눌러도 새 탭에서 열려요.</p></div>
+  </div>
+</section>
+
+<section id="play">
+  <h2><span class="no">05</span>놀이</h2>
+  <p class="sub">근처에 가면 버튼이 바뀌어 나타나요. 컴퓨터에서는 <kbd>E</kbd> 하나로 모두 할 수 있어요.</p>
+  <div class="grid2">
+    <div class="box"><h3>🎯 투호</h3><p>항아리 3개가 앞뒤로 한 줄로 서 있어요. 가장 가까운 항아리에 화살을 던져요. 가까이 설수록 잘 들어가고, “들어갔다! 🎉 (2/5)”처럼 성공 횟수가 떠요. 들어간 화살은 항아리에 꽂혀 남아요.</p></div>
+    <div class="box"><h3>🎲 윷놀이</h3><p>큰 멍석 위로 윷가락 네 개가 빙글빙글 날아올라요. 납작한 면이 위로 온 개수로 도·개·걸·윷·모가 정해져요. X 표시가 있는 가락 하나만 엎어지면 <b>빽도</b>예요.</p></div>
+    <div class="box"><h3>⭕ 굴렁쇠</h3><p>윷 멍석 앞 걸이 두 개에 굴렁쇠가 4개 있어요. 집으면 앞에서 굴러가며 따라오고, 한 손은 굴렁대를 잡은 채 고정돼요. 앉거나 날면 저절로 내려놓아요.</p></div>
+    <div class="box"><h3>⛄ 눈 굴리기 <span class="chip g">겨울</span></h3><p>어디서든 눈덩이를 만들어 굴려요. 걸을수록 커져 지름 1.4 m까지 자라요. 내려놓은 눈덩이 바로 앞에 더 작은 눈덩이를 놓으면 위에 얹혀 <b>눈사람</b>이 돼요(숯 눈, 당근 코, 나뭇가지 팔). 한 사람이 12개까지 남길 수 있어요.</p></div>
+    <div class="box"><h3>🌾 벼 베기 <span class="chip g">가을</span></h3><p>논 근처에서 낫을 들고 논을 걸으면 팔을 휘둘러 앞의 벼를 베어요. 벤 자리엔 그루터기만 남고, 2 m쯤마다 <b>볏단</b>이 하나씩 세워져요(최대 16개).</p></div>
+    <div class="box"><h3>🦆 분수 <span class="chip">앉기 · 타기</span></h3><p>분수 <b>정면</b>(큰 오리가 바라보는 쪽)에서는 가운데 큰 오리모양 토기 등에 올라타요(한 번에 한 명). <b>왼쪽·오른쪽·뒤쪽</b>에서는 분수 가장자리에 걸터앉아요(12자리).</p></div>
+  </div>
+</section>
+
+<section id="npc">
+  <h2><span class="no">06</span>동물 친구 8마리</h2>
+  <p class="sub">앞마당과 광장을 돌아다니는 동물들이에요. 가까이 가면 이름표가 보이고, 1.8 m 안으로 다가가면 한마디씩 해요(같은 동물은 25초에 한 번).</p>
+  <div class="note">공통: 쉬기·걷기·특기를 무작위로 번갈아 하고, 가끔 그 자리에서 25–50초쯤 <b>잠들어요</b>. 잠들면 네 발 동물은 엎드려 턱을 괴고, 두 발 동물은 앉아서 꾸벅 졸아요. 눈을 감고 숨 쉬듯 오르내리며 머리 위로 Z z z가 떠올라요. 자는 동물에게 다가가면 “쿨쿨…”, “음냐… 5분만 더…”, “Zzz…”, “…새근새근…” 같은 잠꼬대를 해요. 논에는 들어가지 않고, 쉬는 동물은 다가온 사람을 바라봐요.</div>
+  <div class="cards" id="npcCards" style="margin-top:14px"></div>
+</section>
+
+<section id="places">
+  <h2><span class="no">07</span>장소 안내</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>장소</th><th>있는 것</th></tr></thead>
+    <tbody>
+      <tr><td>꼬마논 모모</td><td>계절에 따라 모, 벼, 황금 이삭, 그루터기로 바뀌는 논. 사람이 지나가면 벼가 갈라지고 논물에 물결이 일어요. 허수아비(긴소매, 밀짚모자, 귤색 목도리)가 지켜요.</td></tr>
+      <tr><td>농경문화관</td><td>입체 글자 간판, 앞마당의 놀이 실루엣, 맷돌, 솟대. 입구에서 온라인 관람으로 갈 수 있어요.</td></tr>
+      <tr><td>박물관 본관</td><td>아치 배너, 루버 날개 벽의 전시·세미나 포스터, 입구 옆 깃발 3개(태극기 · 그림 깃발 · 남밍 사인). 깃발은 바람에 살랑여요.</td></tr>
+      <tr><td>광장</td><td>파라솔 좌대, 벤치, 볼라드 조명, 가로등. 볼라드와 벤치 사이에 전통놀이 마당(투호·윷·굴렁쇠).</td></tr>
+      <tr><td>소원수 · 연화대</td><td>금줄을 두른 소원수와 리본들. 옆 연꽃 받침에는 불상이 올라갈 예정이에요.</td></tr>
+      <tr><td>분수</td><td>10 m 화강석 수조, 고배 받침 위 큰 오리모양 토기, 청동 오리 넷. 겨울엔 물을 빼요.</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="together">
+  <h2><span class="no">08</span>함께 보기</h2>
+  <div class="grid2">
+    <div class="box"><h3>서로 보이는 것</h3><ul class="plain">
+      <li>위치, 걷기·달리기, 손 흔들기, 말풍선, 앉기, 날기, 특기</li>
+      <li>소원 리본, 투호·윷 결과, 굴렁쇠</li>
+      <li>굴리는 눈덩이와 눈사람, 낫질과 벤 자리, 볏단</li></ul></div>
+    <div class="box"><h3>각자 다른 것</h3><ul class="plain">
+      <li><b>계절</b>은 각자 화면에서 정해요. 눈사람은 내 화면도 겨울이어야, 벤 자리는 가을이어야 보여요.</li>
+      <li><b>동물 친구들의 위치</b>는 보는 사람마다 따로 계산돼요.</li>
+      <li>같이 놀려면 <b>같은 링크</b>로 들어와야 해요.</li></ul></div>
+  </div>
+</section>
+
+<footer>꼬마논 모모 · 2026년 11월 기준 안내서. 동물 사진은 각자 특기를 하는 순간입니다.</footer>
+</main>
+</div>
+
+<script>
+(function(){
+const A=[
+ {k:'chihuahua',n:'치와와',h:'0.60 m',chip:'가장 작고 가장 빠름',me:true,
+  t:'가장 활발해요. 쉬는 시간이 0.4–1.2초로 아주 짧고, 이동할 때 절반 넘게 깡총깡총 뛰어다녀요. 고글과 빨간 반다나를 한 탐험가로, 반다나에 보라 발바닥 참이 달려 있고 오른쪽 귀가 살짝 더 처져 있어요.',
+  acts:[['통통 종종걸음','이동'],['깡총 질주','이동의 55%']],sleep:'거의 안 자요 (5%)',
+  lines:['왈! 같이 뛸래?','여기 진짜 넓다!','놀자 놀자 놀자!','방금 저쪽까지 갔다 왔어!','물어도 돼?']},
+ {k:'cat',n:'고양이',h:'0.81 m',chip:'느긋한 책벌레',
+  t:'느긋하고 차분한 흰 고양이. 왼눈은 호박색, 오른눈은 연한 하늘색인 오드아이에, 반쯤 감긴 눈이 매력이에요.',
+  acts:[['긴 꼬리 살랑','8–15초'],['책 읽기 · 줄 따라 고개 이동','18–31초']],
+  lines:['…냐아.','오늘 책 재밌어.','햇볕이 딱 좋네.','꼬리 구경하러 왔어?']},
+ {k:'fennec',n:'사막여우',h:'0.82 m',chip:'그림 그리는 화가',
+  t:'우아하게 산책해요. 하늘색 한복풍 차림에 꽃 댕기와 금빛 술, 흰 동정, 하늘색 고름, 꽃무늬 누빔 담요를 둘렀어요.',
+  acts:[['앞발로 그림 그리기','18–31초']],
+  lines:['그림 그리기 좋은 날이야.','이 꽃 장식 예쁘지?','같이 그려 볼래?','하늘색이 제일 좋아.']},
+ {k:'redfox',n:'붉은여우',h:'0.85 m',chip:'마감 중인 작가',
+  t:'통통하고 포근하게 뒤뚱 걸어요. 동그란 갈색 안경, 검은 다리 양말, 흰 꼬리 끝이 특징이에요.',
+  acts:[['노트북 타닥타닥','18–31초'],['쿠키 오물오물','11–18초']],
+  lines:['쿠키 하나 먹을래?','마감이 코앞이야…','안경 어디 뒀더라… 아, 썼구나.','노트북 배터리가 간당간당해.']},
+ {k:'gazelle',n:'가젤',h:'1.18 m',chip:'멋쟁이 언니',
+  t:'다정하지만 시크한 언니. 히피펌 머리로 사뿐사뿐, 가장 빨리 걸어요. 평소엔 선글라스를 머리 위에 올려 둬요.',
+  acts:[['선글라스 쓰고 머리 휙','11–18초']],
+  lines:['안녕, 오늘도 멋지네.','선글라스 빌려줄까?','천천히 걸어도 괜찮아.','머리 오늘 잘 됐지?']},
+ {k:'sloth',n:'나무늘보',h:'0.94 m',chip:'혼자가 좋은 게이머',
+  t:'4.5 m 안에 누가 오면 가장 한적한 곳으로 느릿느릿 옮겨요. 다가가도 쳐다보지 않아요.',
+  acts:[['두 손으로 게임하기','27–53초']],sleep:'자주, 더 오래 자요 (22%, 35–70초)',
+  lines:['…조용한 데가 좋아…','…지금 보스전이야…','…안…녕…','…좀… 떨어져 줄래…?']},
+ {k:'chick',n:'병아리',h:'0.65 m',chip:'담요 쓴 꼬마',
+  t:'날개를 파닥이며 뒤뚱 걸어요. 레서판다 후드 담요를 쓰면 귀와 꼬리가 생겨요.',
+  acts:[['담요 쓰고 꼼지락','14–22초']],sleep:'레서판다 담요를 쓰고 졸아요',
+  lines:['삐약!','담요 따뜻해.','삐약삐약?','축구 볼거야!']},
+ {k:'sheep',n:'양',h:'0.83 m',chip:'복실복실 일기쟁이',
+  t:'최대로 복실복실한 털에 노란 별 머리핀. 통통 튀며 걸어요.',
+  acts:[['분홍 깅엄 담요 두르고 꼭 껴안기','14–22초'],['하트 일기장에 일기 쓰기','18–27초']],sleep:'분홍 담요를 두르고 졸아요',
+  lines:['메에~ 소원 빌었어?','일기에 오늘 일 쓸 거야.','포근하다~','메에에~','윷 던져봤어?']}];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.getElementById('npcCards').innerHTML=A.map(a=>`
+ <article class="card"><div class="ph npc"><img src="img/${a.k}.png" alt="${esc(a.n)}" loading="lazy"></div><div class="in">
+  <div class="hd"><h3>${esc(a.n)}${a.me?' <span class="chip g">남밍</span>':''}</h3><span class="meta">키 ${a.h}</span></div>
+  <span class="chip" style="justify-self:start">${esc(a.chip)}</span>
+  <p>${esc(a.t)}</p>
+  <h4>특기</h4><ul class="acts">${a.acts.map(([x,d])=>`<li><span>${esc(x)}</span><span class="t">${esc(d)}</span></li>`).join('')}</ul>
+  <h4>잠</h4><p class="meta">${esc(a.sleep||'가끔 그 자리에서 잠들어요 (10%)')}</p>
+  <h4>대사</h4><div class="lines">${a.lines.map(l=>`<span>${esc(l)}</span>`).join('')}</div>
+ </div></article>`).join('');
+})();
+</script>
+</body></html>
