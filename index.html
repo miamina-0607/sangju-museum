@@ -132,6 +132,10 @@ html,body{height:100%;overflow:hidden;background:#cfe0e4;color:var(--ink);font-f
 /* 미니맵: 오른쪽 위 사람 목록 아래. 위쪽 = 박물관(북) */
 #rightcol{display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex:none}
 #iconRow{display:flex;gap:6px}
+/* 사람 목록 접기 */
+.pHead{display:flex;align-items:center;gap:8px;justify-content:space-between}
+#pplFold{appearance:none;border:0;background:rgba(44,106,90,.12);color:var(--paddy);width:24px;height:24px;border-radius:8px;font-size:11px;line-height:1;cursor:pointer;pointer-events:auto;flex:none}
+#people.folded #plist{display:none}
 #manualBig{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(18,28,24,.28);pointer-events:auto;z-index:5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-bottom,0px))}
 #manualBig[hidden]{display:none}
@@ -148,7 +152,7 @@ html,body{height:100%;overflow:hidden;background:#cfe0e4;color:var(--ink);font-f
 .mapHead b{font:700 16px var(--display)}
 .legend{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:4px 10px;flex-wrap:wrap;flex:1}
 .lg{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:3px;vertical-align:-1px;border:1px solid rgba(0,0,0,.25)}
-.lg.me{background:#e0453a;border-radius:2px;transform:rotate(45deg)}.lg.ot{background:#5b8bd9}.lg.np{background:#fff}
+.lg.me{background:#e0453a;border-radius:2px;transform:rotate(45deg)}.lg.ot{background:#3d7be0}.lg.np{background:#fff}
 #miniClose{appearance:none;border:0;background:rgba(44,106,90,.12);color:var(--paddy);width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer}
 #miniL{width:100%;height:auto;aspect-ratio:360/218;border-radius:12px;display:block}
 /* 이름: 직접 적기 / 랜덤 유물 이름 */
@@ -175,7 +179,7 @@ html,body{height:100%;overflow:hidden;background:#cfe0e4;color:var(--ink);font-f
     </section>
     <div id="rightcol">
       <aside id="people" class="card">
-        <div id="status">연결하는 중</div>
+        <div class="pHead"><div id="status">연결하는 중</div><button id="pplFold" type="button" aria-expanded="true" aria-controls="plist" title="목록 접기">▴</button></div>
         <ul id="plist"></ul>
       </aside>
       <div id="iconRow">
@@ -187,7 +191,7 @@ html,body{height:100%;overflow:hidden;background:#cfe0e4;color:var(--ink);font-f
   <div id="stick" aria-hidden="true"><div id="nub"></div></div>
   <div id="bottom">
     <ul id="log" aria-live="polite"></ul>
-    <div id="hint">WASD·방향키 걷기 · Shift 달리기 · 드래그 둘러보기 · 휠 확대 · F 손 흔들기 · G 의자에 앉기 · E 전통놀이 · Enter 말하기 · Space 날기(천인) · C 사진 찍기(Hidden) · M 소리 · N 미니맵</div>
+    <div id="hint">WASD·방향키 걷기 · Shift 달리기 · 드래그 둘러보기 · 휠 확대 · F 손 흔들기 · G 의자에 앉기 · E 전통놀이 · Enter 말하기 · Space 날기(천인) · C 특기(비파·연꽃·사진·불 뿜기·유령 쫓기) · M 소리 · N 지도</div>
     <div id="bar">
       <div id="seasons" class="card" role="group" aria-label="계절 바꾸기">
         <button id="s-spring" type="button" data-s="spring">봄</button>
@@ -263,7 +267,7 @@ html,body{height:100%;overflow:hidden;background:#cfe0e4;color:var(--ink);font-f
       <label class="ch"><input type="radio" name="ch" value="2"><span><b>새벽</b><small>비파를 타는 주악천인</small></span></label>
       <label class="ch"><input type="radio" name="ch" value="3"><span><b>해오름</b><small>연꽃을 든 연화천인</small></span></label>
       <label class="ch"><input type="radio" name="ch" value="4"><span><b>해태</b><small>머리에 불꽃이 이는 해태</small></span></label>
-      <label class="ch"><input type="radio" name="ch" value="5"><span><b>Hidden</b><small>배낭을 멘 고고학자</small></span></label>
+      <label class="ch"><input type="radio" name="ch" value="5"><span><b>Hidden</b><small>과거의 흔적 속에서 잊힌 이야기를 찾고 기록하는, 책을 좋아하는 감성적인 고고학자</small></span></label>
     </fieldset>
     <button id="enter" type="submit">들어가기</button>
   </form>
@@ -1585,9 +1589,81 @@ function playShutter(x,z){
   const o=sfxOut(x,z);if(!o)return;
   sfxBurst(o,'bandpass',3300,2.5,.16*o.vol,.025);sfxBurst(o,'bandpass',1900,3,.15*o.vol,.035,.075);sfxThump(o,420,.04*o.vol,.03);
 }
-const SPECIAL_ICON={'비파 타기':'🎵','연꽃 들기':'🪷','사진 찍기':'📷'};function iconOf(k){return SPECIAL_ICON[specialOf(k)]||'✨';}
+const SPECIAL_ICON={'비파 타기':'🎵','연꽃 들기':'🪷','사진 찍기':'📷','불 뿜기':'🔥','유령 쫓기':'👻'};function iconOf(k){return SPECIAL_ICON[specialOf(k)]||'✨';}
 function setIcon(b,icon,label,key){b.textContent=icon;if(key){const s=document.createElement('span');s.className='k';s.textContent=' ('+key+')';b.appendChild(s);}b.title=label;b.setAttribute('aria-label',label);}
-function specialOf(k){return CELESTIAL[k]?CELESTIAL[k].special:k===5?'사진 찍기':null;}
+function specialOf(k){return CELESTIAL[k]?CELESTIAL[k].special:k===5?'사진 찍기':k===4?'불 뿜기':k===1?'유령 쫓기':null;}
+/* ---------- 개인 특기: 해태 불 뿜기 · 석장승 유령 쫓기 (특기 중 표시 p 는 이미 서로 주고받으므로 보는 사람도 같은 효과를 그린다) ---------- */
+const fireTex=canvasTex(64,64,(c,w,h)=>{const r=c.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,250,215,1)');r.addColorStop(.35,'rgba(255,190,70,.9)');r.addColorStop(.7,'rgba(240,90,25,.45)');r.addColorStop(1,'rgba(200,40,10,0)');c.fillStyle=r;c.fillRect(0,0,w,h);});
+const fireParts=[],_fp=new THREE.Vector3(),_fd=new THREE.Vector3();
+function emitFire(g,u,dt){const head=u.head;if(!head)return;u.fireAcc=(u.fireAcc||0)+dt*60;
+  head.getWorldPosition(_fp);const yaw=g.rotation.y;_fd.set(Math.sin(yaw),0,Math.cos(yaw));_fp.addScaledVector(_fd,.45);_fp.y-=.06;
+  while(u.fireAcc>=1){u.fireAcc--;let p=fireParts.find(q=>!q.on);
+    if(!p){if(fireParts.length>=180)break;const m=new THREE.SpriteMaterial({map:fireTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,fog:false});
+      p={s:new THREE.Sprite(m),v:new THREE.Vector3()};p.s.renderOrder=15;scene.add(p.s);fireParts.push(p);}
+    p.on=true;p.t=0;p.life=.5+Math.random()*.3;p.s.visible=true;p.s.position.copy(_fp);
+    const sp=3.4+Math.random()*1.8;p.v.set(_fd.x*sp+(Math.random()-.5)*1,(Math.random()-.15)*.7,_fd.z*sp+(Math.random()-.5)*1);}}
+function updateFire(dt){for(const p of fireParts){if(!p.on)continue;p.t+=dt;const k=p.t/p.life;if(k>=1){p.on=false;p.s.visible=false;continue;}
+  p.s.position.addScaledVector(p.v,dt);p.v.multiplyScalar(1-dt*1.8);p.v.y+=dt*1.4;const sc=.16+k*.95;p.s.scale.set(sc,sc,1);
+  p.s.material.opacity=1-k;p.s.material.color.setRGB(1,1-k*.45,1-k*.85);}}
+/* 유령: 하얀 천을 뒤집어쓴 동글동글 유령 (눈·입·짧은 팔) */
+function makeGhost(){const g=new THREE.Group();const m=new THREE.MeshLambertMaterial({color:0xf5f7ff,transparent:true,opacity:.9,emissive:0x7d8cc4,emissiveIntensity:.3});
+  const prof=[[0,.62],[.16,.6],[.26,.52],[.31,.38],[.32,.18],[.34,.02],[.38,-.06],[.3,-.04],[.22,-.08],[.12,-.03],[0,-.06]].map(([r,y])=>new THREE.Vector2(r,y));
+  const b=new THREE.Mesh(new THREE.LatheGeometry(prof,24),m);g.add(b);
+  const ink=mat('#22252e');for(const s of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(.045,10,8),ink);e.scale.set(1,1.4,.5);e.position.set(s*.1,.4,.27);g.add(e);
+    const a=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),m);a.position.set(s*.33,.24,.05);g.add(a);}
+  const mo=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),ink);mo.scale.set(1,1.3,.4);mo.position.set(0,.3,.3);g.add(mo);
+  g.userData.m=m;return g;}
+function sfxHit(x,z){const o=sfxOut(x,z);if(!o)return;sfxThump(o,140,.12*o.vol,.18);sfxBurst(o,'bandpass',900,1.2,.06*o.vol,.08);}
+/* 매 프레임: animateAvatar 다음에 불러 특기 자세를 덮어쓴다. mine = 내 캐릭터 */
+/* 해오름(연화천인): 연꽃을 들고 → 꽃을 보다 "!!" → 샤랄라 반짝이며 한 바퀴 */
+const sparkTex=canvasTex(64,64,(c,w,h)=>{c.translate(32,32);const gr=c.createRadialGradient(0,0,0,0,0,30);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.25,'rgba(255,255,255,.75)');gr.addColorStop(1,'rgba(255,255,255,0)');
+  c.fillStyle=gr;c.beginPath();for(let i=0;i<8;i++){const r=i%2?7:30,a=i*Math.PI/4;c.lineTo(Math.cos(a)*r,Math.sin(a)*r);}c.closePath();c.fill();});
+const sparkParts=[],SPARK_C=[[1,.75,.85],[1,.92,.6],[.85,.9,1],[1,1,1]];
+function emitSparkles(g,u,n){g.getWorldPosition(_fp);const top=u.top||1.6;
+  for(let i=0;i<n;i++){let p=sparkParts.find(q=>!q.on);
+    if(!p){if(sparkParts.length>=120)break;const m=new THREE.SpriteMaterial({map:sparkTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,fog:false});
+      p={s:new THREE.Sprite(m),v:new THREE.Vector3()};p.s.renderOrder=16;scene.add(p.s);sparkParts.push(p);}
+    const a=Math.random()*6.283,r=.35+Math.random()*.45;p.on=true;p.t=0;p.life=.9+Math.random()*.6;p.s.visible=true;
+    p.s.position.set(_fp.x+Math.cos(a)*r,_fp.y+.2+Math.random()*top,_fp.z+Math.sin(a)*r);p.v.set(-Math.sin(a)*1.1,.5+Math.random()*.7,Math.cos(a)*1.1);
+    const c=SPARK_C[(Math.random()*4)|0];p.s.material.color.setRGB(c[0],c[1],c[2]);p.tw=Math.random()*6;}}
+function updateSparkles(dt){for(const p of sparkParts){if(!p.on)continue;p.t+=dt;const k=p.t/p.life;if(k>=1){p.on=false;p.s.visible=false;continue;}
+  p.s.position.addScaledVector(p.v,dt);p.v.multiplyScalar(1-dt*1.2);const sc=(.1+.12*Math.abs(Math.sin(p.t*14+p.tw)))*(1-k*.5);p.s.scale.set(sc,sc,1);p.s.material.opacity=1-k;}}
+function drawBang(sp){const cv=sp.material.map.image;cv.width=160;cv.height=120;const c=cv.getContext('2d');c.textAlign='center';c.textBaseline='middle';
+  c.font='bold 96px "Jua","Gowun Dodum",sans-serif';c.lineJoin='round';c.lineWidth=12;c.strokeStyle='#fff';c.strokeText('!!',80,62);c.fillStyle='#ff4f6d';c.fillText('!!',80,62);
+  sp.material.map.needsUpdate=true;}
+function sfxChime(x,z){const o=sfxOut(x,z);if(!o)return;const c=SFX.ctx;[1319,1568,1760,2093,2637].forEach((f,i)=>{const s=c.createOscillator(),e=c.createGain(),t=o.t+i*.09;s.type='sine';s.frequency.value=f;
+  e.gain.setValueAtTime(.0001,t);e.gain.exponentialRampToValueAtTime(.05*o.vol,t+.01);e.gain.exponentialRampToValueAtTime(.0001,t+.5);s.connect(e);e.connect(o.g);s.start(t);s.stop(t+.55);});}
+function lotusFX(g,u,now){
+  if(!u.playing){if(u.lt0){u.lt0=0;if(u.rig)u.rig.rotation.y=0;if(u.bang)u.bang.visible=false;}return;}
+  if(!u.lt0){u.lt0=now;u.lStage=0;}
+  const t=(now-u.lt0)/1000;
+  if(!u.bang){u.bang=labelSprite();drawBang(u.bang);u.bang.visible=false;g.add(u.bang);}
+  /* 1.0–1.9초: 꽃을 보다가 머리 위에 "!!" 가 톡 */
+  if(t>=1&&t<1.9){const k=(t-1)/.9,s=k<.25?.42*(k/.25)*1.15:.42*(1+.08*Math.sin(k*20)*(1-k));u.bang.visible=true;u.bang.scale.set(s*1.33,s,1);u.bang.position.set(.15,(u.top||1.6)+.28,0);}
+  else u.bang.visible=false;
+  if(t>=1&&u.lStage<1){u.lStage=1;}
+  /* 1.9–3.1초: 샤랄라~ 반짝이며 한 바퀴 */
+  if(t>=1.9&&u.lStage<2){u.lStage=2;sfxChime(g.position.x,g.position.z);}
+  if(t>=1.9&&t<3.1){const k=(t-1.9)/1.2,e=k*k*(3-2*k);if(u.rig)u.rig.rotation.y=e*Math.PI*2;emitSparkles(g,u,2);}
+  else if(t>=3.1&&u.rig)u.rig.rotation.y=0;}
+function specialFX(g,dt,now,mine){const u=g.userData;if(u.pending)return;
+  if(u.kind===3){lotusFX(g,u,now);return;}
+  if(u.kind===4){if(u.playing&&!(u.alt>.3)){emitFire(g,u,dt);if(u.head)u.head.rotation.x-=.22;
+      if(now>(u.fireSnd||0)){u.fireSnd=now+260;const o=sfxOut(g.position.x,g.position.z);if(o)sfxBurst(o,'lowpass',700,.6,.07*o.vol,.32,0,.04);}}
+    return;}
+  if(u.kind!==1)return;
+  if(!u.playing){if(u.ghost){scene.remove(u.ghost);u.ghost=null;}if(u.ghT0&&u.rig)u.rig.rotation.x=0;u.ghT0=0;return;}
+  if(!u.ghT0){u.ghT0=now;u.hits=0;u.ghost=makeGhost();scene.add(u.ghost);setBubble(g,'유령이다! 👻');}
+  const t=(now-u.ghT0)/1000,yaw=g.rotation.y,fx=Math.sin(yaw),fz=Math.cos(yaw);
+  /* 휘두르기: 0.8초마다 팔을 번쩍 들었다 내리친다 (세 번) */
+  const cyc=(t%.8)/.8,a=u.armP;
+  if(t<2.4&&a){a.rotation.x=cyc<.6?lerp(-.6,-2.5,cyc/.6):lerp(-2.5,-.2,(cyc-.6)/.4);a.rotation.z=.25;if(u.rig)u.rig.rotation.x=cyc>.6?.12:0;}
+  const hit=Math.min(3,Math.floor((t+.32)/.8));if(hit>u.hits){u.hits=hit;sfxHit(g.position.x,g.position.z);}
+  const G=u.ghost;if(G){const back=u.hits*.18+(cyc>.6&&t<2.4?.08:0),d=1.15+back;
+    G.position.set(g.position.x+fx*d,g.position.y+.75+Math.sin(now/260)*.06,g.position.z+fz*d);G.rotation.y=yaw+Math.PI;
+    G.rotation.z=(cyc>.6&&t<2.4)?Math.sin(now/40)*.25:0;
+    if(t>2.4){const k=clamp((t-2.4)/.5,0,1);G.scale.setScalar(1-k*.9);G.userData.m.opacity=.9*(1-k);G.position.y+=k*.6;if(k>=1){scene.remove(G);u.ghost=null;}}}
+  if(mine&&t>3.1){setPlaying(false);setBubble(g,'물러가라!');}}
 
 /* Hidden — chars/hidden.js 에 모델(GLB). 몸·머리·양팔·양다리를 코드로 움직인다 */
 const HID={scene:null,failed:false,wait:[],loading:false,cam:null,flash:null};
@@ -1856,7 +1932,16 @@ async function firebaseRoom(){
     const state={};let last=0,timer=null;
     const flush=()=>{timer=null;if(typeof state.x!=='number')return Promise.resolve();last=performance.now();
       const v=JSON.parse(JSON.stringify(state));v.t=fb.database.ServerValue.TIMESTAMP;return me_.set(v);};
-    const peers=new Map();let cbs=null;const emit=()=>{if(cbs)cbs({peers:[...peers.entries()].map(([k,p])=>({peer:k,presence:p,kind:'viewer',sameTab:k===id}))});};
+    /* 붙박이 방지: 25초마다 '나 여기 있어요' 시간을 다시 적고, 3시간 넘게 소식 없는 사람은 안 보이게,
+       하루 넘게 소식 없는 기록은 지운다 (창을 갑자기 닫아 남은 캐릭터 정리) */
+    let off=0;db.ref('.info/serverTimeOffset').on('value',s=>{off=s.val()||0;});
+    setInterval(()=>{flush().catch(()=>{});},25000);
+    const STALE=3*3600*1000,DEAD=24*3600*1000;   /* 3시간 · 하루 */
+    const peers=new Map();let cbs=null;const emit=()=>{if(!cbs)return;const now=Date.now()+off;
+      cbs({peers:[...peers.entries()].filter(([k,p])=>{if(k===id)return true;const age=typeof p.t==='number'?now-p.t:0;
+        if(age>DEAD){db.ref('momo/peers/'+k).remove().catch(()=>{});return false;}return age<=STALE;})
+        .map(([k,p])=>({peer:k,presence:p,kind:'viewer',sameTab:k===id}))});};
+    setInterval(emit,15000);
     return {
       presence(patch){Object.assign(state,patch);   /* 초당 4번까지만 보낸다 (무료 사용량 아끼기) */
         const wait=250-(performance.now()-last);if(wait<=0)return flush();if(!timer)timer=setTimeout(()=>flush().catch(()=>{}),wait);return Promise.resolve();},
@@ -1902,6 +1987,11 @@ function foldCaption(f){$('caption').classList.toggle('folded',f);const b=$('cap
   try{localStorage.setItem('paddy-fold',f?'1':'0');}catch(_){}}
 {let f=matchMedia('(pointer:coarse),(max-width:620px)').matches;try{const v=localStorage.getItem('paddy-fold');if(v!=null&&getComputedStyle($('capFold')).display!=='none')f=v==='1';}catch(_){}if(getComputedStyle($('capFold')).display!=='none')foldCaption(f);}
 $('capFold').addEventListener('click',()=>{foldCaption(!$('caption').classList.contains('folded'));$('capFold').blur();});
+/* 사람 목록 접기 (휴대폰은 처음부터 접힘, 고른 상태 기억) */
+function foldPeople(f){$('people').classList.toggle('folded',f);const b=$('pplFold');b.textContent=f?'▾':'▴';b.title=f?'목록 펼치기':'목록 접기';b.setAttribute('aria-expanded',f?'false':'true');
+  try{localStorage.setItem('paddy-pfold',f?'1':'0');}catch(_){}}
+{let f=matchMedia('(pointer:coarse),(max-width:620px)').matches;try{const v=localStorage.getItem('paddy-pfold');if(v!=null)f=v==='1';}catch(_){}foldPeople(f);}
+$('pplFold').addEventListener('click',()=>{foldPeople(!$('people').classList.contains('folded'));$('pplFold').blur();});
 $('gateForm').addEventListener('submit',e=>{e.preventDefault();nick=clean($('nick').value,12)||'손님';
   const ch=document.querySelector('#chars input:checked');myKind=ch?+ch.value:1;$('play').hidden=!specialOf(myKind);$('fly').hidden=!CELESTIAL[myKind];if(specialOf(myKind))setIcon($('play'),iconOf(myKind),specialOf(myKind),'C');sfxInit();
   try{localStorage.setItem('paddy-nick',nick);localStorage.setItem('paddy-char',String(myKind));}catch(_){}
@@ -2038,7 +2128,9 @@ const _hA=new THREE.Vector3(),_hD=new THREE.Vector3(),_up=new THREE.Vector3(0,1,
 function setHoopStick(hg,hand){const s=hg.userData.stick;_hD.subVectors(HOOK,hand);const l=_hD.length();
   s.position.copy(hand).addScaledVector(_hD,.5);s.scale.set(1,l,1);s.quaternion.setFromUnitVectors(_up,_hD.normalize());}
 /* 굴렁대를 쥐는 팔: 석장승·Hidden·사람은 한 팔을 앞으로 내밀어 고정한다 (해태·천인은 팔 대신 굴렁대만) */
-function hoopArm(u){return u.kind===5?u.armR:u.kind===1?u.armN:u.kind===0?u.armR:null;}
+function hoopArm(u){return u.kind===5?u.armR:u.kind===1?u.armN:u.kind===0?u.armR:u.kind===4?u.armP:null;}
+/* 잡는 팔 자세: 해태는 앞발(아래팔)도 곧게 펴서 쥔다 */
+function holdArm(u,arm,rx){arm.rotation.set(rx,0,0);if(u.kind===4&&u.foreP)u.foreP.rotation.set(0,0,0);}
 function setHoop(o,on){if(!!o.hoop===on)return;
   if(on){o.hoop=makeHoop();o.g.add(o.hoop);o.hoopA=0;o.hoopHand=null;}else{o.g.remove(o.hoop);o.hoop=null;o.hoopHand=null;}
   let n=me.hoop?1:0;for(const p of others.values())if(p.hoop)n++;rackHoops.forEach((h,i)=>h.visible=i<rackHoops.length-n);}
@@ -2046,9 +2138,9 @@ function spinHoop(o,speed,dt){if(!o.hoop)return;o.hoopA=(o.hoopA||0)+speed*dt/.3
   o.hoop.rotation.z=speed>0?Math.sin(o.hoopA*.5)*.025:Math.sin(performance.now()/300)*.02;
   const u=o.g.userData,arm=u.pending?null:hoopArm(u);if(!arm)return;
   /* 쥔 손 위치(팔 끝)를 처음 한 번 팔 기준 좌표로 기억한다 */
-  if(!o.hoopHand){arm.rotation.set(0,0,0);o.g.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(arm);if(b.isEmpty())return;
+  if(!o.hoopHand){holdArm(u,arm,0);o.g.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(arm);if(b.isEmpty())return;
     const p=new THREE.Vector3((b.min.x+b.max.x)/2,b.min.y+.03,(b.min.z+b.max.z)/2);o.hoopHand=arm.worldToLocal(p);}
-  arm.rotation.set(-.7,0,0);   /* 휘두르지 않고 앞으로 내민 채 고정 */
+  holdArm(u,arm,-.7);   /* 휘두르지 않고 앞으로 내민 채 고정 */
   o.g.updateMatrixWorld(true);_hA.copy(o.hoopHand);arm.localToWorld(_hA);o.hoop.worldToLocal(_hA);setHoopStick(o.hoop,_hA);}
 /* 소리 */
 function gameSound(kind,x,z,delay=0){const o=sfxOut(x,z);if(!o)return;o.t+=delay;
@@ -2153,9 +2245,16 @@ const myBallGrp=new THREE.Group();snowGroup.add(myBallGrp);
 function setRoll(o,r){if(r>0){if(!o.roll){const m=new THREE.Mesh(ballGeo,snowBallM);m.castShadow=true;o.g.add(m);o.roll={m,r,spin:0,sent:r};}o.roll.r=r;}
   else if(o.roll){o.g.remove(o.roll.m);o.roll=null;}}
 function placeBall(){if(!me.roll)return;const r=+me.roll.r.toFixed(2),d=.42+r,x=me.x+Math.sin(me.yaw)*d,z=me.z+Math.cos(me.yaw)*d;
-  /* 내 눈덩이 위에 더 작은 눈덩이를 놓으면 눈사람 머리가 된다 */
-  let base=null;for(const b of me.balls)if(!(b[5]&3)&&r<b[2]*.95&&Math.hypot(b[0]-x,b[1]-z)<b[2]+.35){base=b;break;}
-  let nb;if(base){base[5]|=2;nb=[base[0],base[1],r,+(base[3]+base[2]*.78+r*.82).toFixed(2),+(me.yaw+Math.PI).toFixed(2),1];setBubble(me.g,'눈사람 완성! ⛄');}
+  /* 내 눈덩이 위에 더 작은 눈덩이를 얹는다: 2개면 2단(아래 몸통에 팔, 위 머리), 3개면 3단(가운데에 팔, 맨 위 머리) */
+  const stackOf=b=>me.balls.filter(c=>c[0]===b[0]&&c[1]===b[1]).sort((p,q)=>p[3]-q[3]);
+  let top=null,st=null;
+  for(const b of me.balls){const s=stackOf(b);if(s[s.length-1]!==b||s.length>=3)continue;
+    if(r<b[2]*.95&&Math.hypot(b[0]-x,b[1]-z)<b[2]+.35){top=b;st=s;break;}}
+  let nb;
+  if(top){const a=+(me.yaw+Math.PI).toFixed(2);
+    if(st.length===1){top[5]=2;top[4]=a;setBubble(me.g,'2단 눈사람 완성! ⛄');}
+    else{st[0][5]=0;top[5]=2;top[4]=a;setBubble(me.g,'3단 눈사람 완성! ⛄⛄');}
+    nb=[top[0],top[1],r,+(top[3]+top[2]*.78+r*.82).toFixed(2),a,1];}
   else nb=[+x.toFixed(2),+z.toFixed(2),r,+(heightAt(x,z)+r*.9).toFixed(2),0,0];
   me.balls.push(nb);while(me.balls.length>12)me.balls.shift();drawBalls(me.balls,myBallGrp);
   setRoll(me,0);pushPresence({sr:0,sb:me.balls.map(b=>b.slice())});}
@@ -2165,7 +2264,7 @@ function makeSickle(){const g=new THREE.Group();rod([0,.04,0],[0,-.16,0],.016,ma
   bl.position.set(.07,-.16,0);bl.rotation.z=Math.PI*.05;g.add(bl);return g;}
 function setHarv(o,on){if(!!o.sickle===on)return;
   if(on){o.sickle=makeSickle();o.harvD=0;o.sheafD=0;}else{if(o.sickle.parent)o.sickle.parent.remove(o.sickle);o.sickle=null;}}
-function getHand(o,arm){if(o._hand&&o._handArm===arm)return o._hand;arm.rotation.set(0,0,0);o.g.updateMatrixWorld(true);
+function getHand(o,arm){if(o._hand&&o._handArm===arm)return o._hand;holdArm(o.g.userData,arm,0);o.g.updateMatrixWorld(true);
   const b=new THREE.Box3().setFromObject(arm);if(b.isEmpty())return null;
   o._hand=arm.worldToLocal(new THREE.Vector3((b.min.x+b.max.x)/2,b.min.y+.03,(b.min.z+b.max.z)/2));o._handArm=arm;return o._hand;}
 /* 벼 베기 */
@@ -2189,7 +2288,7 @@ function seasonPlay(o,speed,dt,isMe){const now=performance.now();
     R.m.scale.setScalar(R.r);R.m.position.set(0,R.r,.42+R.r);R.spin+=speed*dt/R.r;R.m.rotation.x=R.spin;
     if(isMe&&Math.abs(R.r-R.sent)>.03&&now-seasonSent>300){R.sent=R.r;seasonSent=now;pushPresence({sr:+R.r.toFixed(2)});}}
   if(o.sickle){const u=o.g.userData,arm=u.pending?null:hoopArm(u),sw=speed>0?Math.sin(now/1000*11):0;
-    if(arm){const h=getHand(o,arm);if(h&&o.sickle.parent!==arm){arm.add(o.sickle);o.sickle.position.copy(h);}arm.rotation.set(-.55+sw*.6,0,0);}
+    if(arm){const h=getHand(o,arm);if(h&&o.sickle.parent!==arm){arm.add(o.sickle);o.sickle.position.copy(h);}holdArm(o.g.userData,arm,-.55+sw*.6);}
     else{if(o.sickle.parent!==o.g){o.g.add(o.sickle);o.sickle.position.set(.28,.6,.32);}o.sickle.rotation.x=sw*.8;}
     if(isMe&&speed>0&&inPaddy(me.x,me.z,.2)){o.harvD+=speed*dt;o.sheafD+=speed*dt;
       if(o.harvD>.3){o.harvD=0;const cx=+(me.x+Math.sin(me.yaw)*.45).toFixed(1),cz=+(me.z+Math.cos(me.yaw)*.45).toFixed(1);
@@ -2328,7 +2427,8 @@ function updateMini(now){if(!miniOn||now-miniT<120)return;miniT=now;
   const X=x=>(x-MINI.x0)/(MINI.x1-MINI.x0)*W,Z=z=>(z-MINI.z0)/(MINI.z1-MINI.z0)*H;
   g.fillStyle='rgba(255,255,255,.9)';g.strokeStyle='rgba(40,40,40,.55)';g.lineWidth=1;
   for(const n of NPCS){if(!n.g)continue;g.beginPath();g.arc(X(n.x),Z(n.z),2.6,0,7);g.fill();g.stroke();}
-  for(const o of others.values()){g.fillStyle=SHIRTS[o.col]||'#888';g.strokeStyle='#fff';g.lineWidth=1.5;g.beginPath();g.arc(X(o.x),Z(o.z),4.2,0,7);g.fill();g.stroke();}
+  /* 다른 사람: 범례와 같은 파란 점 + 흰 테두리 (옷 색과 상관없이 늘 파랑) */
+  for(const o of others.values()){g.fillStyle='#3d7be0';g.strokeStyle='#fff';g.lineWidth=1.5;g.beginPath();g.arc(X(o.x),Z(o.z),4.2,0,7);g.fill();g.stroke();}
   if(entered){const x=X(me.x),z=Z(me.z),s=Math.sin(me.yaw),c=Math.cos(me.yaw);
     g.fillStyle='#e0453a';g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();
     g.moveTo(x+s*9,z+c*9);g.lineTo(x-s*5+c*5.5,z-c*5-s*5.5);g.lineTo(x-s*2,z-c*2);g.lineTo(x-s*5-c*5.5,z-c*5+s*5.5);g.closePath();g.stroke();g.fill();}}
@@ -2552,7 +2652,7 @@ function tick(){
     if(me.moving)me.g.userData.prayUntil=0;
     me.alt=lerp(me.alt,me.fly?FLY_H:0,1-Math.exp(-dt*(me.fly?1.6:2.4)));
     me.y=lerp(me.y,heightAt(me.x,me.z),1-Math.exp(-dt*12));
-    me.g.position.set(me.x,me.y+me.alt,me.z);me.g.userData.alt=me.alt;me.g.rotation.y=me.yaw;animateAvatar(me.g,me.moving,me.speed,dt,now);
+    me.g.position.set(me.x,me.y+me.alt,me.z);me.g.userData.alt=me.alt;me.g.rotation.y=me.yaw;animateAvatar(me.g,me.moving,me.speed,dt,now);specialFX(me.g,dt,now,true);
     if(me.sit>=0)applySit(me.g,SEATS[me.sit]);else unSit(me.g);updateSitUI();updateWishUI();turnCamToSit(dt);
     applyPray(me.g,now);updateGameUI();spinHoop(me,me.moving?me.speed:0,dt);seasonPlay(me,me.moving?me.speed:0,dt,true);
     if(now-lastSend>90){const s=[me.x.toFixed(2),me.z.toFixed(2),me.yaw.toFixed(2),me.moving?1:0].join();if(s!==lastSent){lastSent=s;lastSend=now;pushPresence({x:+me.x.toFixed(2),z:+me.z.toFixed(2),a:+me.yaw.toFixed(2),m:me.moving?1:0});}}
@@ -2565,7 +2665,7 @@ function tick(){
     o.y=lerp(o.y,heightAt(o.x,o.z),1-Math.exp(-dt*12));
     let d=o.ta-o.yaw;while(d>Math.PI)d-=6.2832;while(d<-Math.PI)d+=6.2832;o.yaw+=d*k;
     o.alt=lerp(o.alt||0,o.fly?FLY_H:0,1-Math.exp(-dt*1.8));o.g.userData.alt=o.alt;
-    o.g.position.set(o.x,o.y+o.alt,o.z);o.g.rotation.y=o.yaw;animateAvatar(o.g,(o.m||dist>.06)&&!(o.sit>=0),clamp(dist*9,1.6,4.5),dt,now);
+    o.g.position.set(o.x,o.y+o.alt,o.z);o.g.rotation.y=o.yaw;animateAvatar(o.g,(o.m||dist>.06)&&!(o.sit>=0),clamp(dist*9,1.6,4.5),dt,now);specialFX(o.g,dt,now,false);
     if(o.sit>=0)applySit(o.g,SEATS[o.sit]);else unSit(o.g);
     applyPray(o.g,now);{const os=(o.m||dist>.06)?clamp(dist*9,1.6,4.5):0;spinHoop(o,os,dt);seasonPlay(o,os,dt,false);}
     if((o.alt||0)<.5)near.push([o.x,o.z,o.m?1:.5]);
@@ -2577,7 +2677,7 @@ function tick(){
 
   /* 주변 움직임 */
   for(const c of clouds){c.position.x+=dt*1.5;if(c.position.x>640)c.position.x=-640;}
-  scare.rotation.z=Math.sin(t*.9)*.012;updateWishTree(t);updateGames(now);waveFlags(t);updateMini(now);
+  scare.rotation.z=Math.sin(t*.9)*.012;updateWishTree(t);updateGames(now);waveFlags(t);updateMini(now);updateFire(dt);updateSparkles(dt);
   if(scare.visible)updateCloth(t);
   if(fountain.water.visible){fountain.wt.offset.x+=dt*.03;fountain.wt.offset.y+=dt*.02;if(fountain.jetMat)fountain.jetMat.opacity=.56+Math.sin(t*9)*.06+Math.sin(t*23)*.04;}
   doorRingMat.opacity=.35+Math.sin(t*2.4)*.2;

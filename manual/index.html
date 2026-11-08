@@ -101,7 +101,7 @@ footer{color:var(--ink-soft);font-size:13px;border-top:1px solid var(--line);pad
     <div class="box"><h3>화면 구성</h3>
       <ul class="plain">
         <li><b>왼쪽 위</b>: 지금 계절 설명과 온라인 관람 링크. 휴대폰에서는 ▾/▴ 버튼으로 접고 펼쳐요(처음엔 접혀 있음).</li>
-        <li><b>오른쪽 위</b>: 지금 함께 있는 사람 목록, 그 아래 <b>📖 안내서</b>와 <b>🗺️ 지도</b> 아이콘. 지도는 화면 가운데 크게 열리고, 위쪽이 박물관이에요. 나는 빨간 화살표, 다른 사람은 옷 색 점, 동물 친구는 흰 점이에요. 바깥을 누르거나 ✕, <kbd>Esc</kbd>로 닫아요.</li>
+        <li><b>오른쪽 위</b>: 지금 함께 있는 사람 목록(▾/▴로 접고 펼쳐요, 휴대폰은 처음엔 접힘), 그 아래 <b>📖 안내서</b>와 <b>🗺️ 지도</b> 아이콘. 지도는 화면 가운데 크게 열리고, 위쪽이 박물관이에요. 나는 빨간 화살표, 다른 사람은 옷 색 점, 동물 친구는 흰 점이에요. 바깥을 누르거나 ✕, <kbd>Esc</kbd>로 닫아요.</li>
         <li><b>아래</b>: 계절 버튼(봄·여름·가을·겨울), 말하기 칸, 동작 버튼줄. 버튼은 둥글고 반투명해서 장면이 비쳐 보여요.</li>
       </ul></div>
   </div>
@@ -120,7 +120,7 @@ footer{color:var(--ink-soft);font-size:13px;border-top:1px solid var(--line);pad
       <tr><td>🪑 앉기 · 🦆 오리 타기</td><td><kbd>G</kbd></td><td>의자 근처에서 나타나는 버튼</td></tr>
       <tr><td>🎯 전통놀이 · ⛄ 눈 굴리기 · 🌾 벼 베기 · 입구 열기</td><td><kbd>E</kbd></td><td>근처에서 나타나는 버튼</td></tr>
       <tr><td>💬 말하기</td><td><kbd>Enter</kbd>로 칸 열고 입력 후 <kbd>Enter</kbd></td><td>말하기 칸에 입력 후 💬</td></tr>
-      <tr><td>캐릭터 특기(비파·연꽃·사진)</td><td><kbd>C</kbd></td><td>특기 버튼</td></tr>
+      <tr><td>캐릭터 특기(비파·연꽃·사진·불 뿜기·유령 쫓기)</td><td><kbd>C</kbd></td><td>특기 버튼</td></tr>
       <tr><td>🕊️ 날기(천인만)</td><td><kbd>Space</kbd></td><td>🕊️ 버튼</td></tr>
       <tr><td>🔊 소리 켜고 끄기</td><td><kbd>M</kbd></td><td>🔊 버튼</td></tr>
       <tr><td>🗺️ 지도 크게 보기 · 닫기</td><td><kbd>N</kbd> · <kbd>Esc</kbd></td><td>오른쪽 위 🗺️ 아이콘</td></tr>
@@ -135,6 +135,7 @@ footer{color:var(--ink-soft);font-size:13px;border-top:1px solid var(--line);pad
     <article class="card"><div class="ph"><img src="img/ch_stone.png" alt="석장승 캐릭터" loading="lazy"></div><div class="in">
       <div class="hd"><h3>석장승</h3><span class="chip">돌 장승</span></div>
       <p>감 주머니를 멘 돌 장승. 무게감 있는 뒤뚱 걸음이라 발소리도 가장 묵직하게 “쿵” 울려요.</p>
+      <h4>특기 <kbd>C</kbd></h4><p class="meta">👻 유령 쫓기: “유령이다!” 외치면 눈앞에 하얀 유령이 나타나요. 팔을 번쩍 들어 세 번 내리치면 유령이 작아지며 사라지고 “물러가라!” 해요.</p>
       <h4>표정</h4><p class="meta">손을 흔들거나 말하면 웃고, 물 댄 논에 들어가면 깜짝 놀라요.</p>
       <h4>앉기</h4><p class="meta">발을 앞으로 살짝 내밀고 앉아요. 굴렁쇠를 굴릴 때는 한 팔을 내밀어 굴렁대를 꽉 잡아요.</p>
     </div></article>
@@ -147,18 +148,19 @@ footer{color:var(--ink-soft);font-size:13px;border-top:1px solid var(--line);pad
     <article class="card"><div class="ph"><img src="img/ch_haeoreum.png" alt="해오름 캐릭터" loading="lazy"></div><div class="in">
       <div class="hd"><h3>해오름</h3><span class="chip">연화천인</span></div>
       <p>연꽃을 든 천인. 새벽과 같은 천인 계열로, 하늘을 날 수 있어요.</p>
-      <h4>특기 <kbd>C</kbd> · 날기 <kbd>Space</kbd></h4><p class="meta">🪷 연꽃 들기: 연꽃을 높이 들어 올려요.</p>
+      <h4>특기 <kbd>C</kbd> · 날기 <kbd>Space</kbd></h4><p class="meta">🪷 연꽃 들기: 연꽃을 높이 들고 꽃을 바라보다가 머리 위에 “!!”가 톡 떠요. 이어서 “샤랄라~” 맑은 소리와 반짝이를 흩뿌리며 한 바퀴 빙그르르 돌아요.</p>
       <h4>표정</h4><p class="meta">연꽃을 들면 감탄, 말할 땐 활짝 웃음, 입구 앞에선 반한 얼굴, 오래 서 있으면 집중한 얼굴, 논물에선 감탄한 얼굴.</p>
     </div></article>
     <article class="card"><div class="ph"><img src="img/ch_haetae.png" alt="해태 캐릭터" loading="lazy"></div><div class="in">
       <div class="hd"><h3>해태</h3><span class="chip">불꽃 해태</span></div>
       <p>머리에 불꽃이 이는 해태. 걸을 땐 두 발, 달릴 땐 네 발로 바꿔 힘차게 뛰어요. 불꽃에서 불티가 튀어요.</p>
+      <h4>특기 <kbd>C</kbd></h4><p class="meta">🔥 불 뿜기: 고개를 살짝 들고 입에서 불길을 화르르 뿜어요. 다시 누르거나 움직이면 멈춰요.</p>
       <h4>앉기</h4><p class="meta">엉덩이를 대고 다리를 앞으로 쭉 뻗어 앉아요.</p>
-      <h4>굴렁쇠</h4><p class="meta">팔 대신 굴렁대만 붙어서 함께 굴러가요.</p>
+      <h4>굴렁쇠 · 낫</h4><p class="meta">앞발을 곧게 뻗어 굴렁대와 낫을 꼭 쥐어요.</p>
     </div></article>
     <article class="card"><div class="ph"><img src="img/ch_hidden.png" alt="Hidden 캐릭터" loading="lazy"></div><div class="in">
       <div class="hd"><h3>Hidden</h3><span class="chip">고고학자</span></div>
-      <p>배낭을 멘 고고학자. 손목시계를 찬 왼팔로 손을 흔들어요.</p>
+      <p>과거의 흔적 속에서 잊힌 이야기를 찾고 기록하는, 책을 좋아하는 감성적인 고고학자. 배낭을 메고, 손목시계를 찬 왼팔로 손을 흔들어요.</p>
       <h4>특기 <kbd>C</kbd></h4><p class="meta">📷 사진 찍기: 카메라를 눈앞에 들고 잠시 겨눈 뒤 “찰칵”, 플래시가 터져요.</p>
       <h4>절하기</h4><p class="meta">소원을 빌 때 다리는 곧게 두고 허리를 숙여 절해요.</p>
     </div></article>
@@ -200,7 +202,7 @@ footer{color:var(--ink-soft);font-size:13px;border-top:1px solid var(--line);pad
     <div class="box"><h3>🎯 투호</h3><p>항아리 3개가 앞뒤로 한 줄로 서 있어요. 가장 가까운 항아리에 화살을 던져요. 가까이 설수록 잘 들어가고, “들어갔다! 🎉 (2/5)”처럼 성공 횟수가 떠요. 들어간 화살은 항아리에 꽂혀 남아요.</p></div>
     <div class="box"><h3>🎲 윷놀이</h3><p>큰 멍석 위로 윷가락 네 개가 빙글빙글 날아올라요. 납작한 면이 위로 온 개수로 도·개·걸·윷·모가 정해져요. X 표시가 있는 가락 하나만 엎어지면 <b>빽도</b>예요.</p></div>
     <div class="box"><h3>⭕ 굴렁쇠</h3><p>윷 멍석 앞 걸이 두 개에 굴렁쇠가 4개 있어요. 집으면 앞에서 굴러가며 따라오고, 한 손은 굴렁대를 잡은 채 고정돼요. 앉거나 날면 저절로 내려놓아요.</p></div>
-    <div class="box"><h3>⛄ 눈 굴리기 <span class="chip g">겨울</span></h3><p>어디서든 눈덩이를 만들어 굴려요. 걸을수록 커져 지름 1.4 m까지 자라요. 내려놓은 눈덩이 바로 앞에 더 작은 눈덩이를 놓으면 위에 얹혀 <b>눈사람</b>이 돼요(숯 눈, 당근 코, 나뭇가지 팔). 한 사람이 12개까지 남길 수 있어요.</p></div>
+    <div class="box"><h3>⛄ 눈 굴리기 <span class="chip g">겨울</span></h3><p>어디서든 눈덩이를 만들어 굴려요. 걸을수록 커져 지름 1.4 m까지 자라요. 내려놓은 눈덩이 바로 앞에 더 작은 눈덩이를 놓으면 위에 얹혀요. <b>2개면 2단, 3개면 3단 눈사람</b>이 돼요. 맨 위엔 숯 눈과 당근 코, 그 아래엔 나뭇가지 팔이 생겨요. 한 사람이 12개까지 남길 수 있어요.</p></div>
     <div class="box"><h3>🌾 벼 베기 <span class="chip g">가을</span></h3><p>논 근처에서 낫을 들고 논을 걸으면 팔을 휘둘러 앞의 벼를 베어요. 벤 자리엔 그루터기만 남고, 2 m쯤마다 <b>볏단</b>이 하나씩 세워져요(최대 16개).</p></div>
     <div class="box"><h3>🦆 분수 <span class="chip">앉기 · 타기</span></h3><p>분수 <b>정면</b>(큰 오리가 바라보는 쪽)에서는 가운데 큰 오리모양 토기 등에 올라타요(한 번에 한 명). <b>왼쪽·오른쪽·뒤쪽</b>에서는 분수 가장자리에 걸터앉아요(12자리).</p></div>
   </div>
@@ -243,7 +245,8 @@ footer{color:var(--ink-soft);font-size:13px;border-top:1px solid var(--line);pad
       <li>전에 한 번 열어 본 휴대폰이나 컴퓨터는 예전 화면을 기억하고 있을 수 있어요.</li>
       <li>그럴 땐 탭을 완전히 닫았다가 다시 열거나 새로고침하세요(컴퓨터는 <kbd>Ctrl</kbd>+<kbd>F5</kbd>).</li>
       <li>그래도 그대로면 주소 끝에 <b>?v=5</b>처럼 물음표와 숫자를 붙여서 열어 보세요. 숫자는 아무거나 괜찮아요.</li>
-      <li>처음 들어오는 사람은 늘 최신 화면을 봐요.</li></ul></div>
+      <li>처음 들어오는 사람은 늘 최신 화면을 봐요.</li>
+      <li>창을 갑자기 닫아 캐릭터가 남아 있어도, 3시간 넘게 소식이 없으면 안 보이고 하루가 지나면 기록이 지워져요.</li></ul></div>
   </div>
 </section>
 
