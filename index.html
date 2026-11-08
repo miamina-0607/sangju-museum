@@ -63,6 +63,7 @@ html,body{height:100%;overflow:hidden;background:#cfe0e4;color:var(--ink);font-f
 #gate form{max-width:420px}
 .ch span{padding:9px 8px}
 #chars legend{font-size:12px;color:var(--ink-soft);padding:0;margin-bottom:4px}
+#chars .ch:nth-of-type(5){grid-column:1/-1}   /* Hidden 설명이 길어서 두 칸 너비로 */
 .ch{position:relative;display:block;cursor:pointer;margin:0!important}
 .ch input{position:absolute;opacity:0;width:1px;height:1px}
 .ch span{display:grid;gap:2px;border:1px solid var(--line);border-radius:2px;padding:10px;background:#fff;height:100%;box-sizing:border-box}
@@ -1595,8 +1596,17 @@ function specialOf(k){return CELESTIAL[k]?CELESTIAL[k].special:k===5?'사진 찍
 /* ---------- 개인 특기: 해태 불 뿜기 · 석장승 유령 쫓기 (특기 중 표시 p 는 이미 서로 주고받으므로 보는 사람도 같은 효과를 그린다) ---------- */
 const fireTex=canvasTex(64,64,(c,w,h)=>{const r=c.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,250,215,1)');r.addColorStop(.35,'rgba(255,190,70,.9)');r.addColorStop(.7,'rgba(240,90,25,.45)');r.addColorStop(1,'rgba(200,40,10,0)');c.fillStyle=r;c.fillRect(0,0,w,h);});
 const fireParts=[],_fp=new THREE.Vector3(),_fd=new THREE.Vector3();
+/* 해태 입 위치: 얼굴의 까만 코(detail_head_6) 바로 아래. 처음 한 번 구해 머리 기준 좌표로 기억 (머리를 들면 같이 따라간다) */
+function haeMouth(g,u){const head=u.head;g.updateMatrixWorld(true);let nose=null;
+  head.traverse(o=>{if(o.isMesh&&/detail_head_6/.test(o.name))nose=o;});
+  const m=new THREE.Vector3();
+  if(nose){const b=new THREE.Box3().setFromObject(nose);b.getCenter(m);g.worldToLocal(m);m.y-=.07;m.z+=.04;}
+  else m.set(0,.55,.45);   /* 코를 못 찾으면 측정해 둔 값 */
+  g.localToWorld(m);head.worldToLocal(m);return m;}
 function emitFire(g,u,dt){const head=u.head;if(!head)return;u.fireAcc=(u.fireAcc||0)+dt*60;
-  head.getWorldPosition(_fp);const yaw=g.rotation.y;_fd.set(Math.sin(yaw),0,Math.cos(yaw));_fp.addScaledVector(_fd,.45);_fp.y-=.06;
+  if(u.mouth===undefined)u.mouth=haeMouth(g,u);
+  const yaw=g.rotation.y;_fd.set(Math.sin(yaw),0,Math.cos(yaw));
+  if(u.mouth){_fp.copy(u.mouth);head.localToWorld(_fp);}else{head.getWorldPosition(_fp);_fp.addScaledVector(_fd,.45);_fp.y+=.25;}
   while(u.fireAcc>=1){u.fireAcc--;let p=fireParts.find(q=>!q.on);
     if(!p){if(fireParts.length>=180)break;const m=new THREE.SpriteMaterial({map:fireTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,fog:false});
       p={s:new THREE.Sprite(m),v:new THREE.Vector3()};p.s.renderOrder=15;scene.add(p.s);fireParts.push(p);}
@@ -1613,6 +1623,14 @@ function makeGhost(){const g=new THREE.Group();const m=new THREE.MeshLambertMate
     const a=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),m);a.position.set(s*.33,.24,.05);g.add(a);}
   const mo=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),ink);mo.scale.set(1,1.3,.4);mo.position.set(0,.3,.3);g.add(mo);
   g.userData.m=m;return g;}
+/* 석장승의 나무 방망이: 원점이 손잡이(쥐는 곳), 팔 방향(아래 −y)으로 뻗고 머리엔 쇠테와 뿔 */
+function makeClub(){const g=new THREE.Group(),wood=mat('#7a4e2c'),head=mat('#a06c3c'),iron=new THREE.MeshPhongMaterial({color:L('#5a5d61'),shininess:50});
+  const h=new THREE.Mesh(new THREE.CylinderGeometry(.024,.028,.24,8),wood);h.position.y=-.08;g.add(h);
+  const c=new THREE.Mesh(new THREE.CylinderGeometry(.06,.092,.42,10),head);c.position.y=-.41;c.castShadow=true;g.add(c);
+  for(const y of[-.27,-.56]){const b=new THREE.Mesh(new THREE.TorusGeometry(y<-.4?.088:.066,.012,6,16),iron);b.rotation.x=Math.PI/2;b.position.y=y;g.add(b);}
+  for(let i=0;i<6;i++){const a=i/6*Math.PI*2,s=new THREE.Mesh(new THREE.ConeGeometry(.018,.05,6),iron);s.position.set(Math.cos(a)*.085,-.45-(i%2)*.06,Math.sin(a)*.085);
+    s.rotation.z=-Math.cos(a)*Math.PI/2;s.rotation.x=Math.sin(a)*Math.PI/2;g.add(s);}
+  g.scale.setScalar(.001);return g;}
 function sfxHit(x,z){const o=sfxOut(x,z);if(!o)return;sfxThump(o,140,.12*o.vol,.18);sfxBurst(o,'bandpass',900,1.2,.06*o.vol,.08);}
 /* 매 프레임: animateAvatar 다음에 불러 특기 자세를 덮어쓴다. mine = 내 캐릭터 */
 /* 해오름(연화천인): 연꽃을 들고 → 꽃을 보다 "!!" → 샤랄라 반짝이며 한 바퀴 */
@@ -1621,43 +1639,53 @@ const sparkTex=canvasTex(64,64,(c,w,h)=>{c.translate(32,32);const gr=c.createRad
 const sparkParts=[],SPARK_C=[[1,.75,.85],[1,.92,.6],[.85,.9,1],[1,1,1]];
 function emitSparkles(g,u,n){g.getWorldPosition(_fp);const top=u.top||1.6;
   for(let i=0;i<n;i++){let p=sparkParts.find(q=>!q.on);
-    if(!p){if(sparkParts.length>=120)break;const m=new THREE.SpriteMaterial({map:sparkTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,fog:false});
+    if(!p){if(sparkParts.length>=260)break;const m=new THREE.SpriteMaterial({map:sparkTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,fog:false});
       p={s:new THREE.Sprite(m),v:new THREE.Vector3()};p.s.renderOrder=16;scene.add(p.s);sparkParts.push(p);}
     const a=Math.random()*6.283,r=.35+Math.random()*.45;p.on=true;p.t=0;p.life=.9+Math.random()*.6;p.s.visible=true;
     p.s.position.set(_fp.x+Math.cos(a)*r,_fp.y+.2+Math.random()*top,_fp.z+Math.sin(a)*r);p.v.set(-Math.sin(a)*1.1,.5+Math.random()*.7,Math.cos(a)*1.1);
     const c=SPARK_C[(Math.random()*4)|0];p.s.material.color.setRGB(c[0],c[1],c[2]);p.tw=Math.random()*6;}}
 function updateSparkles(dt){for(const p of sparkParts){if(!p.on)continue;p.t+=dt;const k=p.t/p.life;if(k>=1){p.on=false;p.s.visible=false;continue;}
   p.s.position.addScaledVector(p.v,dt);p.v.multiplyScalar(1-dt*1.2);const sc=(.1+.12*Math.abs(Math.sin(p.t*14+p.tw)))*(1-k*.5);p.s.scale.set(sc,sc,1);p.s.material.opacity=1-k;}}
-function drawBang(sp){const cv=sp.material.map.image;cv.width=160;cv.height=120;const c=cv.getContext('2d');c.textAlign='center';c.textBaseline='middle';
-  c.font='bold 96px "Jua","Gowun Dodum",sans-serif';c.lineJoin='round';c.lineWidth=12;c.strokeStyle='#fff';c.strokeText('!!',80,62);c.fillStyle='#ff4f6d';c.fillText('!!',80,62);
-  sp.material.map.needsUpdate=true;}
 function sfxChime(x,z){const o=sfxOut(x,z);if(!o)return;const c=SFX.ctx;[1319,1568,1760,2093,2637].forEach((f,i)=>{const s=c.createOscillator(),e=c.createGain(),t=o.t+i*.09;s.type='sine';s.frequency.value=f;
   e.gain.setValueAtTime(.0001,t);e.gain.exponentialRampToValueAtTime(.05*o.vol,t+.01);e.gain.exponentialRampToValueAtTime(.0001,t+.5);s.connect(e);e.connect(o.g);s.start(t);s.stop(t+.55);});}
-function lotusFX(g,u,now){
-  if(!u.playing){if(u.lt0){u.lt0=0;if(u.rig)u.rig.rotation.y=0;if(u.bang)u.bang.visible=false;}return;}
+/* 1초에 rate 개꼴로 반짝이를 뿌린다 (프레임마다 소수점까지 모아서) */
+function sparkleRate(g,u,rate,dt){u.spAcc=(u.spAcc||0)+rate*dt;const n=Math.floor(u.spAcc);if(n>0){u.spAcc-=n;emitSparkles(g,u,n);}}
+function lotusFX(g,u,now,dt){
+  if(!u.playing){if(u.lt0){u.lt0=0;if(u.rig)u.rig.rotation.y=0;}return;}
   if(!u.lt0){u.lt0=now;u.lStage=0;}
   const t=(now-u.lt0)/1000;
-  if(!u.bang){u.bang=labelSprite();drawBang(u.bang);u.bang.visible=false;g.add(u.bang);}
-  /* 1.0–1.9초: 꽃을 보다가 머리 위에 "!!" 가 톡 */
-  if(t>=1&&t<1.9){const k=(t-1)/.9,s=k<.25?.42*(k/.25)*1.15:.42*(1+.08*Math.sin(k*20)*(1-k));u.bang.visible=true;u.bang.scale.set(s*1.33,s,1);u.bang.position.set(.15,(u.top||1.6)+.28,0);}
-  else u.bang.visible=false;
-  if(t>=1&&u.lStage<1){u.lStage=1;}
-  /* 1.9–3.1초: 샤랄라~ 반짝이며 한 바퀴 */
-  if(t>=1.9&&u.lStage<2){u.lStage=2;sfxChime(g.position.x,g.position.z);}
-  if(t>=1.9&&t<3.1){const k=(t-1.9)/1.2,e=k*k*(3-2*k);if(u.rig)u.rig.rotation.y=e*Math.PI*2;emitSparkles(g,u,2);}
-  else if(t>=3.1&&u.rig)u.rig.rotation.y=0;}
+  /* 1.0–2.8초: 샤랄라~ 반짝이 폭죽과 함께 살짝 떠오르며 두 바퀴 빙글빙글 */
+  if(t>=1&&u.lStage<1){u.lStage=1;sfxChime(g.position.x,g.position.z);emitSparkles(g,u,36);}
+  if(t>=1&&t<2.8){const k=(t-1)/1.8,e=k*k*(3-2*k);
+    if(u.rig){u.rig.rotation.y=e*Math.PI*4;u.rig.position.y+=Math.sin(Math.PI*k)*.32;u.rig.rotation.z+=Math.sin(Math.PI*k)*.08;}
+    sparkleRate(g,u,180,dt);
+    if(t>=1.9&&u.lStage<2){u.lStage=2;sfxChime(g.position.x,g.position.z);}}
+  else{if(u.rig)u.rig.rotation.y=0;
+    /* 연꽃을 든 동안 주변에 은은한 반짝이 */
+    sparkleRate(g,u,t<1?6:10,dt);}}
 function specialFX(g,dt,now,mine){const u=g.userData;if(u.pending)return;
-  if(u.kind===3){lotusFX(g,u,now);return;}
+  if(u.kind===3){lotusFX(g,u,now,dt);return;}
+  /* 새벽(주악천인): 비파를 타는 동안 반짝이가 은은하게 피어오른다 */
+  if(u.kind===2){if(u.playing&&!(u.alt>.3))sparkleRate(g,u,14,dt);return;}
   if(u.kind===4){if(u.playing&&!(u.alt>.3)){emitFire(g,u,dt);if(u.head)u.head.rotation.x-=.22;
       if(now>(u.fireSnd||0)){u.fireSnd=now+260;const o=sfxOut(g.position.x,g.position.z);if(o)sfxBurst(o,'lowpass',700,.6,.07*o.vol,.32,0,.04);}}
     return;}
   if(u.kind!==1)return;
-  if(!u.playing){if(u.ghost){scene.remove(u.ghost);u.ghost=null;}if(u.ghT0&&u.rig)u.rig.rotation.x=0;u.ghT0=0;return;}
+  if(!u.playing){if(u.ghost){scene.remove(u.ghost);u.ghost=null;}if(u.club){if(u.club.parent)u.club.parent.remove(u.club);u.club=null;}
+    if(u.ghT0&&u.rig){u.rig.rotation.x=0;u.rig.rotation.y=0;}u.ghT0=0;return;}
   if(!u.ghT0){u.ghT0=now;u.hits=0;u.ghost=makeGhost();scene.add(u.ghost);setBubble(g,'유령이다! 👻');}
-  const t=(now-u.ghT0)/1000,yaw=g.rotation.y,fx=Math.sin(yaw),fz=Math.cos(yaw);
-  /* 휘두르기: 0.8초마다 팔을 번쩍 들었다 내리친다 (세 번) */
-  const cyc=(t%.8)/.8,a=u.armP;
-  if(t<2.4&&a){a.rotation.x=cyc<.6?lerp(-.6,-2.5,cyc/.6):lerp(-2.5,-.2,(cyc-.6)/.4);a.rotation.z=.25;if(u.rig)u.rig.rotation.x=cyc>.6?.12:0;}
+  const t=(now-u.ghT0)/1000,a=u.armP;
+  /* 유령은 정면이 아니라 비스듬히(오른쪽 앞 약 40°)에 나타나고, 석장승이 몸을 돌려 그쪽을 본다 */
+  const SIDE=.7,turn=t<2.9?Math.min(1,t/.35):Math.max(0,1-(t-2.9)/.25);if(u.rig)u.rig.rotation.y=SIDE*turn;
+  const yaw=g.rotation.y+SIDE,fx=Math.sin(yaw),fz=Math.cos(yaw);
+  /* 방망이가 손에 '뿅' 나타난다 */
+  if(a&&!u.club){u.club=makeClub();if(!u._clubHand){const rx=a.rotation.x,rz=a.rotation.z;a.rotation.set(0,0,0);g.updateMatrixWorld(true);
+      const b=new THREE.Box3().setFromObject(a);u._clubHand=b.isEmpty()?new THREE.Vector3(0,-.3,0):a.worldToLocal(new THREE.Vector3((b.min.x+b.max.x)/2,b.min.y+.05,(b.min.z+b.max.z)/2));a.rotation.set(rx,0,rz);}
+    a.add(u.club);u.club.position.copy(u._clubHand);}
+  if(u.club){const k=clamp(t/.25,0,1),s=t>2.6?Math.max(0,1-(t-2.6)/.3):k<1?k*1.15:1;u.club.scale.setScalar(Math.max(.001,s));}
+  /* 휘두르기: 0.8초마다 방망이를 번쩍 들었다 내리친다 (세 번) */
+  const cyc=(t%.8)/.8;
+  if(t<2.4&&a){a.rotation.x=cyc<.6?lerp(-.6,-2.6,cyc/.6):lerp(-2.6,-.3,(cyc-.6)/.4);a.rotation.z=.25;if(u.rig)u.rig.rotation.x=cyc>.6?.14:0;}
   const hit=Math.min(3,Math.floor((t+.32)/.8));if(hit>u.hits){u.hits=hit;sfxHit(g.position.x,g.position.z);}
   const G=u.ghost;if(G){const back=u.hits*.18+(cyc>.6&&t<2.4?.08:0),d=1.15+back;
     G.position.set(g.position.x+fx*d,g.position.y+.75+Math.sin(now/260)*.06,g.position.z+fz*d);G.rotation.y=yaw+Math.PI;
