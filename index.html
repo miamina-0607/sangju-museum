@@ -1654,12 +1654,12 @@ function lotusFX(g,u,now,dt){
   if(!u.playing){if(u.lt0){u.lt0=0;if(u.rig)u.rig.rotation.y=0;}return;}
   if(!u.lt0){u.lt0=now;u.lStage=0;}
   const t=(now-u.lt0)/1000;
-  /* 1.0–2.8초: 샤랄라~ 반짝이 폭죽과 함께 살짝 떠오르며 두 바퀴 빙글빙글 */
+  /* 1.0–3.6초: 샤랄라~ 반짝이 폭죽과 함께 살짝 떠오르며 천천히 한 바퀴 */
   if(t>=1&&u.lStage<1){u.lStage=1;sfxChime(g.position.x,g.position.z);emitSparkles(g,u,36);}
-  if(t>=1&&t<2.8){const k=(t-1)/1.8,e=k*k*(3-2*k);
-    if(u.rig){u.rig.rotation.y=e*Math.PI*4;u.rig.position.y+=Math.sin(Math.PI*k)*.32;u.rig.rotation.z+=Math.sin(Math.PI*k)*.08;}
-    sparkleRate(g,u,180,dt);
-    if(t>=1.9&&u.lStage<2){u.lStage=2;sfxChime(g.position.x,g.position.z);}}
+  if(t>=1&&t<3.6){const k=(t-1)/2.6,e=k*k*(3-2*k);
+    if(u.rig){u.rig.rotation.y=e*Math.PI*2;u.rig.position.y+=Math.sin(Math.PI*k)*.3;u.rig.rotation.z+=Math.sin(Math.PI*k)*.06;}
+    sparkleRate(g,u,120,dt);
+    if(t>=2.3&&u.lStage<2){u.lStage=2;sfxChime(g.position.x,g.position.z);}}
   else{if(u.rig)u.rig.rotation.y=0;
     /* 연꽃을 든 동안 주변에 은은한 반짝이 */
     sparkleRate(g,u,t<1?6:10,dt);}}
