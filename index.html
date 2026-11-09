@@ -1,9 +1,9 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>꼬마논 모모</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Jua&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Jua&family=Dongle:wght@400&display=swap">
 <style>
 /* 레이아웃: 화면 전체가 3D 논이고, UI는 박물관 전시 캡션처럼 가장자리에 붙는다. 한 가지 세계로 고정한 단일 테마. */
 :root{
@@ -142,6 +142,7 @@ html,body{height:100%;overflow:hidden;background:#cfe0e4;color:var(--ink);font-f
 #manualBig[hidden]{display:none}
 .manCard{border-radius:18px;padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;width:min(980px,100%);height:min(88vh,100%);box-sizing:border-box}
 #manualFrame{flex:1;width:100%;border:0;border-radius:12px;background:#f1f3ee;min-height:0}
+@media (max-width:620px){#manualBig{padding:max(8px,env(safe-area-inset-top,0px)) 8px max(8px,env(safe-area-inset-bottom,0px))}.manCard{padding:8px;border-radius:14px;height:100%;gap:6px}.manCard .legend{display:none}#manualFrame{border-radius:10px}}
 #manualClose{appearance:none;border:0;background:rgba(44,106,90,.12);color:var(--paddy);width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer}
 .roundIcon,#miniIcon{appearance:none;pointer-events:auto;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:rgba(251,251,246,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-size:19px;line-height:1;cursor:pointer;box-shadow:0 1px 8px rgba(20,30,25,.14)}
 .roundIcon:hover{background:#fff}
@@ -849,15 +850,23 @@ bench(40,14);bench(66,24);bench(92,26);
 /* ===== 불상 자리 + 소원수 (광장, 박물관 아치 앞) ===== */
 /* 전역 난수 R() 순서를 건드리지 않도록 자체 난수를 쓴다 (숲·나무 배치가 바뀌지 않게) */
 let wseed=4242;const WR=()=>{wseed=(wseed*16807)%2147483647;return (wseed-1)/2147483646;};
-const BUDDHA={x:63,z:16,top:1.02};   /* 불상을 올릴 연꽃 받침 위 높이 */
-{const g=new THREE.Group();g.position.set(BUDDHA.x,0,BUDDHA.z);scene.add(g);
- const st=mat('#a39d92'),st2=mat('#b8b2a6'),lotus=mat('#dcd3c4');
- const b1=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.35,.45,8),st);b1.position.y=.225;b1.castShadow=b1.receiveShadow=true;g.add(b1);
- const b2=new THREE.Mesh(new THREE.CylinderGeometry(.85,1,.35,8),st2);b2.position.y=.62;b2.castShadow=b2.receiveShadow=true;g.add(b2);
- for(let i=0;i<14;i++){const a=i/14*TWO_PI,p=new THREE.Mesh(new THREE.SphereGeometry(1,10,8),lotus);p.scale.set(.2,.11,.36);
-   p.position.set(Math.sin(a)*.6,.9,Math.cos(a)*.6);p.rotation.set(0,a,0);p.rotateX(-.55);p.castShadow=true;g.add(p);}
- const top=new THREE.Mesh(new THREE.CylinderGeometry(.62,.58,.1,28),lotus);top.position.y=.97;top.receiveShadow=true;g.add(top);
- BUDDHA.g=g;}
+const BUDDHA={x:65.6,z:16,top:0,scale:1.5};   /* 석불: 받침 없이 땅 위에 바로 선다 (blender 스캔 → buddha/buddha.js) */
+{const g=new THREE.Group();g.position.set(BUDDHA.x,0,BUDDHA.z);g.rotation.y=Math.PI;scene.add(g);BUDDHA.g=g;   /* 얼굴이 광장 앞(남쪽)을 보게 */
+ const el=document.createElement('script');el.src='buddha/buddha.js';el.async=true;
+ el.onload=()=>{const D=window.ENV_buddha;window.ENV_buddha=null;if(!D||!THREE.GLTFLoader)return;
+   const tl=new THREE.TextureLoader(),tx=f=>{const t=tl.load(f);t.flipY=false;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;};
+   const col=tx('buddha/buddha_col.jpg');col.encoding=THREE.sRGBEncoding;
+   const m=new THREE.MeshPhongMaterial({map:col,normalMap:tx('buddha/buddha_nrm.jpg'),normalScale:new THREE.Vector2(.35,.35),shininess:2,specular:0x050505});   /* 주변(단순한 장면)과 어울리게 결을 약하게 */
+   try{new THREE.GLTFLoader().parse(b64buf(D.glb),'',gl=>{gl.scene.traverse(o=>{if(!o.isMesh)return;o.material=m;o.castShadow=o.receiveShadow=true;});gl.scene.scale.setScalar(BUDDHA.scale);g.add(gl.scene);},()=>{});}catch(e){}};
+ document.head.appendChild(el);}
+/* 안내판: 관음보살입상 앞 왼쪽, 광장 쪽을 보고 비스듬히 선다 */
+{const g=new THREE.Group();g.position.set(62.4,0,17.6);g.rotation.y=.5;scene.add(g);
+ const tx=new THREE.TextureLoader().load('posters/mokgari_panel.webp');tx.encoding=THREE.sRGBEncoding;tx.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+ const W=1.2,H=W*2000/1333,y0=.55,frame=mat('#3a3f44');
+ box(W+.1,H+.1,.06,frame,0,y0+H/2,-.035,g);
+ const f=new THREE.Mesh(new THREE.PlaneGeometry(W,H),new THREE.MeshLambertMaterial({map:tx,emissive:0xffffff,emissiveMap:tx,emissiveIntensity:.3}));f.position.set(0,y0+H/2,.0);g.add(f);
+ for(const x of[-W/2+.12,W/2-.12])box(.07,y0+.05,.07,frame,x,(y0+.05)/2,-.035,g);
+ box(W+.3,.06,.35,mat('#8f8a80'),0,.03,-.03,g);}
 const WT={x:70,z:16};const WISH_COLORS=['#c8372d','#e7b416','#2f5fa8','#f4f2ee','#2a2a2a'];
 const wishMats=WISH_COLORS.map(c=>new THREE.MeshLambertMaterial({color:L(c),side:THREE.DoubleSide}));
 const wishRibbons=[],wishAnchors=[],wishUsed=new Set();
@@ -1059,7 +1068,7 @@ const scare=new THREE.Group();scare.position.set(3.9,-.2,6.1);scene.add(scare);
   const crown=new THREE.Mesh(new THREE.SphereGeometry(.2,24,12,0,Math.PI*2,0,Math.PI/2),sm);crown.position.y=2.0;crown.scale.set(1,.75,1);crown.castShadow=true;scare.add(crown);
   const band=new THREE.Mesh(new THREE.TorusGeometry(.198,.012,6,32),mat('#3b2c22'));band.rotation.x=Math.PI/2;band.position.y=2.03;scare.add(band);
   /* 모자 끈 */
-  const strap=new THREE.Mesh(new THREE.TorusGeometry(.17,.006,4,24,Math.PI),mat('#2a2522'));strap.position.set(0,1.88,0);strap.rotation.set(0,Math.PI/2,Math.PI);strap.scale.set(1,1.15,1);scare.add(strap);}
+  const strap=new THREE.Mesh(new THREE.TorusGeometry(.17,.006,4,24,Math.PI),mat('#2a2522'));strap.position.set(0,1.88,.01);strap.rotation.set(0,0,Math.PI);strap.scale.set(1.06,1.15,1);scare.add(strap);}
  /* 귤 무늬 스카프: 흰 천에 주황 귤 */
  {const tt=canvasTex(128,128,(g,w,h2)=>{g.fillStyle='#f7f3ea';g.fillRect(0,0,w,h2);
     const dot=(x,y,r)=>{g.fillStyle='#f39a1e';g.beginPath();g.arc(x,y,r,0,7);g.fill();g.strokeStyle='#2b2018';g.lineWidth=2;g.stroke();g.fillStyle='#3c8a3a';g.beginPath();g.ellipse(x+r*.4,y-r*.95,r*.35,r*.18,.5,0,7);g.fill();};
@@ -1195,13 +1204,17 @@ function drawName(sp,text,outline){const cv=sp.material.map.image;const px=44;co
     const r=33;c.fillStyle='rgba(20,30,25,.62)';c.beginPath();c.moveTo(r+1,2);c.lineTo(w-r-1,2);c.arc(w-r-1,35,r,-Math.PI/2,Math.PI/2);c.lineTo(r+1,68);c.arc(r+1,35,r,Math.PI/2,Math.PI*1.5);c.fill();
     c.fillStyle='#fff';c.fillText(text,w/2,37);}
   sp.material.map.dispose();sp.material.map.needsUpdate=true;const k=.2;sp.scale.set(w/70*k,k,1);}
-function drawBubble(sp,text){const px=42,max=15,lines=[];const chars=[...text];for(let i=0;i<chars.length&&lines.length<4;i+=max)lines.push(chars.slice(i,i+max).join(''));
-  const cv=sp.material.map.image;let g=cv.getContext('2d');g.font=`${px}px "Gowun Dodum",sans-serif`;const w=Math.ceil(Math.max(...lines.map(l=>g.measureText(l).width)))+56;const h=lines.length*56+58;cv.width=w;cv.height=h;
+const BUB_FONT='"Dongle","Gowun Dodum",sans-serif',BUB_PX=64;document.fonts&&document.fonts.load(BUB_PX+'px "Dongle"','가나다').catch(()=>{});
+/* 글꼴은 글자 묶음별로 늦게 내려온다: 아직 없는 글자가 있으면 받아 온 뒤 같은 말풍선을 한 번 더 그린다 */
+function drawBubble(sp,text){drawBubble0(sp,text);sp.userData.bubText=text;
+  if(document.fonts&&!document.fonts.check(BUB_PX+'px "Dongle"',text))document.fonts.load(BUB_PX+'px "Dongle"',text).then(()=>{if(sp.userData.bubText===text)drawBubble0(sp,text);}).catch(()=>{});}
+function drawBubble0(sp,text){const px=BUB_PX,max=15,lines=[];const chars=[...text];for(let i=0;i<chars.length&&lines.length<4;i+=max)lines.push(chars.slice(i,i+max).join(''));
+  const cv=sp.material.map.image;let g=cv.getContext('2d');g.font=`${px}px ${BUB_FONT}`;const w=Math.ceil(Math.max(...lines.map(l=>g.measureText(l).width)))+56;const h=lines.length*56+58;cv.width=w;cv.height=h;
   g=cv.getContext('2d');g.fillStyle='#fbfbf6';g.strokeStyle='rgba(29,40,34,.5)';g.lineWidth=3;g.lineJoin='round';
   /* 모서리를 둥글린 말풍선 + 아래 꼬리를 한 선으로 */
   {const x0=2,y0=2,x1=w-2,y1=h-26,r=Math.min(30,(y1-y0)/2),cx=w/2;g.beginPath();g.moveTo(x0+r,y0);g.lineTo(x1-r,y0);g.quadraticCurveTo(x1,y0,x1,y0+r);g.lineTo(x1,y1-r);g.quadraticCurveTo(x1,y1,x1-r,y1);
    g.lineTo(cx+14,y1);g.quadraticCurveTo(cx+4,y1+10,cx,h-4);g.quadraticCurveTo(cx-2,y1+10,cx-14,y1);g.lineTo(x0+r,y1);g.quadraticCurveTo(x0,y1,x0,y1-r);g.lineTo(x0,y0+r);g.quadraticCurveTo(x0,y0,x0+r,y0);g.closePath();g.fill();g.stroke();}
-  g.fillStyle='#1d2822';g.font=`${px}px "Gowun Dodum",sans-serif`;g.textBaseline='middle';g.textAlign='center';lines.forEach((l,i)=>g.fillText(l,w/2,30+i*56+6));
+  g.fillStyle='#1d2822';g.font=`${px}px ${BUB_FONT}`;g.textBaseline='middle';g.textAlign='center';lines.forEach((l,i)=>g.fillText(l,w/2,30+i*56+6));
   sp.material.map.dispose();sp.material.map.needsUpdate=true;const k=.0056;sp.scale.set(w*k,h*k,1);}
 /* 석장승 모델 (seokjangseung.glb) */
 const STONE={scene:null,failed:false,wait:[]};
@@ -1390,7 +1403,7 @@ const CELESTIAL={
      poseFace:['basic','sing','excited','bigsmile'],talk:'excited',door:'curious',idle:'thinking',wet:'surprised'},
   3:{key:'haeoreum',special:'연꽃 들기',prop:null,hide:[],
      face:{basic:0,happy:1,focused:2,amazed:3,admiring:4,bigsmile:5},
-     poseFace:['basic','amazed','happy','happy'],talk:'bigsmile',door:'admiring',idle:'focused',wet:'amazed',
+     poseFace:['basic','amazed','happy','happy'],talk:'bigsmile',door:'admiring',idle:'focused',wet:'amazed',wavePose:0,waveFace:'bigsmile',waveArm:['ArmU_L','ArmL_L',1],
      flow:{speed:.62,amp:1.1,drift:.05,full:1},shawl:{mat:'SB_HO_Ribbon',hide:'ribbon_back'}}};
 const CEL_SCALE=.6,POSE_FRAMES=[1,49,97,145];
 const CEL={scene:{},failed:{},wait:{},loading:{}};
@@ -1464,12 +1477,24 @@ function buildCel(g,kind){
   Object.assign(g.userData,{kind,cel:C,rig,model:m,mixer,acts,pw:[1,0,0,0],faces,faceCur:0,prop:C.prop?m.getObjectByName(C.prop):null,
     flutter:Object.values(fl),roots,flow:C.flow||{speed:1,amp:1,drift:0,full:1},top:2.0,still:0});
   g.userData.name.position.y=2.0;
+  g.userData.bonesBy=bones;
   if(C.shawl)buildShawl(g,g.userData,C,A,bones);
 }
 const _eu=new THREE.Euler(),_qq=new THREE.Quaternion(),TAU=Math.PI*2;
+/* 뼈 하나를 월드 방향 dir 쪽으로 w 만큼 돌린다 (glTF 뼈는 +Y 가 뼈 방향) */
+const _bw=new THREE.Quaternion(),_bp=new THREE.Quaternion(),_bd=new THREE.Quaternion(),_bi=new THREE.Quaternion(),_by=new THREE.Vector3(),_gq=new THREE.Quaternion(),_v3=new THREE.Vector3();
+function aimBoneY(b,dir,w){b.updateWorldMatrix(true,false);b.getWorldQuaternion(_bw);_by.set(0,1,0).applyQuaternion(_bw);
+  _bd.setFromUnitVectors(_by,dir);_bi.identity().slerp(_bd,w);_bw.premultiply(_bi);
+  b.parent.getWorldQuaternion(_bp);b.quaternion.copy(_bp.invert().multiply(_bw));}
+/* 천인 손 인사: 위팔은 옆으로 비스듬히 들고, 아래팔은 세워서 좌우로 흔든다 */
+function celWave(g,u,now){const [ua,la,side]=u.cel.waveArm,B=u.bonesBy;if(!B||!B[ua]||!B[la])return;
+  g.getWorldQuaternion(_gq);const osc=Math.sin(now*.011)*.45;
+  aimBoneY(B[ua],_v3.set(side*.78,.42,.32).normalize().applyQuaternion(_gq),u.wv);
+  aimBoneY(B[la],_v3.set(side*(.12+Math.sin(osc)*.85),Math.cos(osc),.28).normalize().applyQuaternion(_gq),u.wv);}
 function animateCel(g,u,dt,now,moving){
   const t=now/1000,C=u.cel,a=u.moveAmt,F=clamp((u.alt||0)/.6,0,1);
-  const want=F>.3?3:(u.playing&&a<.2)?1:now<u.waveUntil?2:0;
+  const waving=now<u.waveUntil&&F<=.3&&!(u.playing&&a<.2);
+  const want=F>.3?3:(u.playing&&a<.2)?1:waving?(C.wavePose!=null?C.wavePose:2):0;
   const k=1-Math.exp(-dt*8);
   for(let i=0;i<4;i++){u.pw[i]=lerp(u.pw[i],i===want?1:0,k);u.acts[i].setEffectiveWeight(u.pw[i]);}
   u.mixer.update(dt);
@@ -1482,6 +1507,7 @@ function animateCel(g,u,dt,now,moving){
     if(W.drift){const g2=W.drift*(.35+e.idx*.22)*(1+.5*a+.5*F),ph=t*.9*W.speed*TAU/2.2-e.idx*.6+e.side*1.7;v[0]+=Math.sin(ph)*g2;v[2]+=Math.sin(ph*.8+1.1)*g2*.6;}
     _eu.set(v[0],v[1],v[2],'ZYX');e.b.quaternion.multiply(_qq.setFromEuler(_eu));}
   animateShawl(u,t,a,F);
+  u.wv=lerp(u.wv||0,waving&&C.waveArm?1:0,1-Math.exp(-dt*9));if(C.waveArm&&u.wv>.002)celWave(g,u,now);
   /* 걸음: 뒤뚱 + 들썩 */
   u.phase+=dt*(u.speedNow||0)*3.6;const s=Math.sin(u.phase),c2=Math.cos(u.phase);
   u.rig.rotation.z=s*.07*a*(1-F);u.rig.position.y=Math.abs(c2)*.05*a*(1-F)+F*Math.sin(t*1.6)*.08;
@@ -1490,7 +1516,7 @@ function animateCel(g,u,dt,now,moving){
   u.still=(a<.05&&want===0)?u.still+dt:0;
   const wet=F<.2&&S.n.water>.3&&inMud(g.position.x,g.position.z);
   let f=C.poseFace[want];
-  if(wet)f=C.wet;else if(want===0){if(now<u.sayUntil)f=C.talk;else if(nearAnyDoor(g.position.x,g.position.z))f=C.door;else if(u.still>9)f=C.idle;}
+  if(wet)f=C.wet;else if(waving&&C.waveFace)f=C.waveFace;else if(want===0){if(now<u.sayUntil)f=C.talk;else if(nearAnyDoor(g.position.x,g.position.z))f=C.door;else if(u.still>9)f=C.idle;}
   const fi=C.face[f]||0;
   if(fi!==u.faceCur&&u.faces[fi]){u.faces.forEach((o,i)=>{if(o)o.visible=i===fi;});u.faceCur=fi;}
 }
@@ -1856,7 +1882,7 @@ function collide(p){
   if(p.alt>1.2)return;
   for(const[a,b,c,d]of COLLIDERS){const r=.3;if(p.x>a-r&&p.x<b+r&&p.z>c-r&&p.z<d+r){const dl=p.x-(a-r),dr=b+r-p.x,db=p.z-(c-r),df=d+r-p.z;const m=Math.min(dl,dr,db,df);if(m===dl)p.x=a-r;else if(m===dr)p.x=b+r;else if(m===db)p.z=c-r;else p.z=d+r;}}
   const d=inArc(p.x,p.z,.3);if(d){const A=MM_ARC,k=(d<A.r?A.r-A.th/2-.31:A.r+A.th/2+.31)/d;p.x=A.x+(p.x-A.x)*k;p.z=A.z+(p.z-A.z)*k;}
-  const tr=[[34,17.5,.3],[34,20,.3],[34,22.5,.3],[44.6,28.8,.62],[47.4,28.8,.62],[70,16,.75],[63,16,1.4],[21,6.5,.34],[-23,-2,.4],[-16,14,.4],[24,13,.4],[-26,8,.4],[32,-24,.4],[104,-22,.4],[70,30,.4],[50,-6,4.8],[-3.4,1.15,.22],[3.9,6.1,.22],[-23.5,-6.45,.42],[-14.1,-6.45,.42],[-4.7,-6.45,.42],[5.6,-6.45,.42],[-20.5,-2.5,.5],[15.6,-4.7,.12],[16.3,-4.25,.12],[16.9,-4.85,.12],[17.6,-4.35,.12],[18.2,-4.7,.12],[18.9,-4.3,.12],[19.5,-4.8,.12]];
+  const tr=[[34,17.5,.3],[34,20,.3],[34,22.5,.3],[44.6,28.8,.62],[47.4,28.8,.62],[70,16,.75],[65.6,16,.8],[62.4,17.6,.55],[21,6.5,.34],[-23,-2,.4],[-16,14,.4],[24,13,.4],[-26,8,.4],[32,-24,.4],[104,-22,.4],[70,30,.4],[50,-6,4.8],[-3.4,1.15,.22],[3.9,6.1,.22],[-23.5,-6.45,.42],[-14.1,-6.45,.42],[-4.7,-6.45,.42],[5.6,-6.45,.42],[-20.5,-2.5,.5],[15.6,-4.7,.12],[16.3,-4.25,.12],[16.9,-4.85,.12],[17.6,-4.35,.12],[18.2,-4.7,.12],[18.9,-4.3,.12],[19.5,-4.8,.12]];
   for(const[x,z,r]of tr){const dx=p.x-x,dz=p.z-z,d=Math.hypot(dx,dz);if(d<r+.25&&d>.001){p.x=x+dx/d*(r+.25);p.z=z+dz/d*(r+.25);}}
 }
 function blockedCam(x,z,y){for(const[a,b,c,d,h]of COLLIDERS){if(y<h+.4&&x>a-.3&&x<b+.3&&z>c-.3&&z<d+.3)return true;}return y<8&&inArc(x,z,.3)>0;}
@@ -1886,9 +1912,14 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>keys.delete(e.code));
 addEventListener('blur',()=>keys.clear());
 const drags=new Map();
-canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);drags.set(e.pointerId,[e.clientX,e.clientY]);if(typing())document.activeElement.blur();});
-canvas.addEventListener('pointermove',e=>{const d=drags.get(e.pointerId);if(!d)return;camYaw-=(e.clientX-d[0])*.0052;camPitch=clamp(camPitch+(e.clientY-d[1])*.004,.04,1.25);d[0]=e.clientX;d[1]=e.clientY;});
-const endDrag=e=>drags.delete(e.pointerId);canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+canvas.addEventListener('pointerdown',e=>{try{canvas.setPointerCapture(e.pointerId);}catch(_){}drags.set(e.pointerId,[e.clientX,e.clientY]);if(typing())document.activeElement.blur();});
+let pinch0=0;
+function pinchDist(){const v=[...drags.values()];return v.length<2?0:Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1]);}
+canvas.addEventListener('pointermove',e=>{const d=drags.get(e.pointerId);if(!d)return;
+  /* 두 손가락: 벌리면 확대, 오므리면 축소 */
+  if(drags.size>=2){d[0]=e.clientX;d[1]=e.clientY;const pd=pinchDist();if(pinch0>0&&pd>0)camDist=clamp(camDist*pinch0/pd,2.4,20);pinch0=pd;return;}
+  pinch0=0;camYaw-=(e.clientX-d[0])*.0052;camPitch=clamp(camPitch+(e.clientY-d[1])*.004,.04,1.25);d[0]=e.clientX;d[1]=e.clientY;});
+const endDrag=e=>{drags.delete(e.pointerId);pinch0=0;};canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
 canvas.addEventListener('wheel',e=>{e.preventDefault();camDist=clamp(camDist*Math.exp(e.deltaY*.001),2.4,20);},{passive:false});
 const stickEl=$('stick'),nub=$('nub');
 function setStick(e){const r=stickEl.getBoundingClientRect();let dx=(e.clientX-r.left-54)/44,dy=(e.clientY-r.top-54)/44;const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l;}stick.x=dx;stick.y=dy;nub.style.transform=`translate(${dx*32}px,${dy*32}px)`;nub.classList.toggle('run',Math.hypot(dx,dy)>.92);}
@@ -2300,7 +2331,7 @@ function cutAt(x,z,r){const sp=rice.userData.spots,a=rice.userData.cut.array;let
   for(let i=0;i<sp.length;i++){const dx=sp[i][0]-x,dz=sp[i][1]-z;if(a[i]<1&&dx*dx+dz*dz<r*r){a[i]=1;ch=true;}}
   if(ch)rice.userData.cut.needsUpdate=true;}
 function rebuildCuts(){const a=rice.userData.cut.array;a.fill(0);
-  if(season==='autumn'){const ap=c=>{for(let i=0;i+1<c.length;i+=2)cutAt(c[i],c[i+1],.55);};ap(me.cuts);for(const o of others.values())if(o.cuts)ap(o.cuts);}
+  if(season==='autumn'){const ap=c=>{for(let i=0;i+1<c.length;i+=2)cutAt(c[i],c[i+1],.55);};ap(me.cuts);for(const o of others.values())if(o.cuts&&!o.cutsHidden)ap(o.cuts);}
   rice.userData.cut.needsUpdate=true;}
 function makeSheaf(x,z,a){const g=new THREE.Group();g.position.set(x,Math.max(heightAt(x,z),-.12),z);g.rotation.set(0,a,.1);
   const straw=new THREE.MeshLambertMaterial({color:L('#d8b35a')});
@@ -2310,6 +2341,12 @@ function makeSheaf(x,z,a){const g=new THREE.Group();g.position.set(x,Math.max(he
 const mySheafGrp=new THREE.Group();sheafGroup.add(mySheafGrp);
 function drawSheaves(list,grp){while(grp.children.length)grp.remove(grp.children[0]);for(const s of list)grp.add(makeSheaf(...s));}
 let seasonSent=0,lastSeasonSeen=null;
+/* 벤 논을 처음처럼 되돌린다: 내 벤 자리·볏단은 지우고, 다른 사람 것은 그 사람이 다시 벨 때까지 내 화면에서 숨긴다 */
+function regrowPaddy(){if(!me.cuts)return;const had=me.cuts.length||me.sheaves.length;
+  me.cuts=[];me.sheaves=[];drawSheaves([],mySheafGrp);
+  for(const o of others.values()){if(o.cuts&&o.cuts.length)o.cutsHidden=true;if(o.sheafGrp)o.sheafGrp.visible=false;}
+  rebuildCuts();if(had)pushPresence({hc:[],hs:[]});}
+let paddyFar=false;
 /* 한 프레임: 굴리는 눈덩이 키우기 · 낫질과 벤 자리 · 볏단 */
 function seasonPlay(o,speed,dt,isMe){const now=performance.now();
   if(o.roll){const R=o.roll;if(isMe&&speed>0)R.r=Math.min(.7,R.r+speed*dt*.028);
@@ -2325,7 +2362,9 @@ function seasonPlay(o,speed,dt,isMe){const now=performance.now();
         while(me.sheaves.length>16)me.sheaves.shift();drawSheaves(me.sheaves,mySheafGrp);me.cutDirty=true;}}}
   if(isMe&&me.cutDirty&&now-seasonSent>500){me.cutDirty=false;seasonSent=now;pushPresence({hc:me.cuts.slice(),hs:me.sheaves.map(s=>s.slice())});}}
 function seasonFrame(){snowGroup.visible=S.n.snow>.5;sheafGroup.visible=season==='autumn';
-  if(season!==lastSeasonSeen){lastSeasonSeen=season;rebuildCuts();}
+  if(season!==lastSeasonSeen){const first=lastSeasonSeen==null;lastSeasonSeen=season;if(first)rebuildCuts();else regrowPaddy();}
+  /* 논에서 멀리(35 m 넘게) 다녀오면 벼가 다시 자라 있다 */
+  if(entered){const far=Math.hypot(me.x,me.z-6)>35;if(far&&!paddyFar)regrowPaddy();paddyFar=far;}
   for(const o of others.values())if(o.roll)o.roll.m.visible=snowGroup.visible;}
 /* 다른 사람 상태 받기 */
 const numArr=(v,n,lo,hi)=>Array.isArray(v)?v.slice(0,n).map(x=>num(x,lo,hi,0)):[];
@@ -2336,9 +2375,9 @@ function seasonPeer(o,pr){
         sk=JSON.stringify(sb);
   if(sk!==o.sbKey){o.sbKey=sk;if(!o.ballGrp){o.ballGrp=new THREE.Group();snowGroup.add(o.ballGrp);}drawBalls(sb,o.ballGrp);}
   const hc=numArr(pr.hc,200,-60,120),hk=hc.join();
-  if(hk!==o.hcKey){o.hcKey=hk;o.cuts=hc;if(season==='autumn')for(let i=0;i+1<hc.length;i+=2)cutAt(hc[i],hc[i+1],.55);}
+  if(hk!==o.hcKey){const was=o.hcKey!=null;o.hcKey=hk;o.cuts=hc;if(was)o.cutsHidden=false;if(season==='autumn'&&!o.cutsHidden)for(let i=0;i+1<hc.length;i+=2)cutAt(hc[i],hc[i+1],.55);}
   const hs=Array.isArray(pr.hs)?pr.hs.slice(0,16).filter(Array.isArray).map(s=>[num(s[0],-60,120,0),num(s[1],-60,60,0),num(s[2],-7,7,0)]):[],sk2=JSON.stringify(hs);
-  if(sk2!==o.hsKey){o.hsKey=sk2;if(!o.sheafGrp){o.sheafGrp=new THREE.Group();sheafGroup.add(o.sheafGrp);}drawSheaves(hs,o.sheafGrp);}}
+  if(sk2!==o.hsKey){const was=o.hsKey!=null;o.hsKey=sk2;if(!o.sheafGrp){o.sheafGrp=new THREE.Group();sheafGroup.add(o.sheafGrp);}drawSheaves(hs,o.sheafGrp);if(was)o.sheafGrp.visible=true;}}
 /* ---------- 미니맵 (위 = 박물관 쪽 −z, 오른쪽 = +x) ---------- */
 /* 평소엔 오른쪽 위 작은 🗺️ 아이콘, 누르면 화면 가운데 큰 지도. 📖 아이콘은 안내서를 화면 위에 띄운다 */
 const MINI={x0:-48,x1:108,z0:-50,z1:44},MK=3;let miniOn=false,miniT=0,miniBase=null;
@@ -2411,7 +2450,7 @@ function miniDrawBase(){const cv=document.createElement('canvas');cv.width=360*M
   g.fillStyle='#9b7a3e';for(const p of GM.pots){g.beginPath();g.arc(X(p.x),Z(p.z),.9,0,7);g.fill();}
   g.fillStyle='#7d6a58';for(const K of GM.racks)R(K.x-.6,K.x+.6,K.z-.1,K.z+.1,'#a77b52');
   g.fillStyle='#d8d8d6';for(const x of[44,46.5,49]){g.beginPath();g.arc(X(x),Z(-15),.8,0,7);g.fill();}
-  g.fillStyle='#b8b2a6';g.beginPath();g.arc(X(BUDDHA.x),Z(BUDDHA.z),1.3*M,0,7);g.fill();
+  g.fillStyle='#a39d92';g.beginPath();g.arc(X(BUDDHA.x),Z(BUDDHA.z),.8*M,0,7);g.fill();
   /* 나무: 그림자 먼저, 그다음 수관(가운데가 밝은 공 모양) */
   const leafC={spring:['#a9d06a','#6f9f3e'],summer:['#4f8f3c','#2c5e2a'],autumn:['#e0a33a','#a8572a'],winter:['#b7aa98','#7a6a58']}[S];
   const hex=(h,a)=>{const n=parseInt(h.slice(1),16);return`rgba(${n>>16},${(n>>8)&255},${n&255},${a})`;};
@@ -2447,7 +2486,7 @@ function miniDrawBase(){const cv=document.createElement('canvas');cv.width=360*M
       g.fillRect(X(x)+Math.cos(a)*d,Z(z)+Math.sin(a)*d,.7+rnd()*.8,.7+rnd()*.8);}}
   /* 이름 */
   g.font='bold 9px "Gowun Dodum",sans-serif';g.textAlign='center';g.textBaseline='middle';g.lineWidth=2.4;g.strokeStyle='rgba(255,255,255,.9)';g.fillStyle='#24302a';g.lineJoin='round';
-  for(const[t,x,z]of[['논',0,11.6],['농경문화관',0,-17],['본관',81,-29],['분수',96,21],['소원수',WT.x,WT.z+5.2],['전통놀이',GM.mat.x,GM.mat.z-3.4],['광장',75,-6],...(FOREST.label?[['숲',FOREST.label[0],FOREST.label[1]]]:[])]){g.strokeText(t,X(x),Z(z));g.fillText(t,X(x),Z(z));}
+  for(const[t,x,z]of[['논',0,11.6],['농경문화관',0,-17],['본관',81,-29],['분수',96,21],['소원수',WT.x,WT.z+5.2],['목가리사지 관음보살입상',BUDDHA.x-2.4,BUDDHA.z+3.4],['전통놀이',GM.mat.x,GM.mat.z-3.4],['광장',75,-6],...(FOREST.label?[['숲',FOREST.label[0],FOREST.label[1]]]:[])]){g.strokeText(t,X(x),Z(z));g.fillText(t,X(x),Z(z));}
   return cv;}
 function updateMini(now){if(!miniOn||now-miniT<120)return;miniT=now;
   const key=season;if(!miniBase||miniBase.key!==key){miniBase=miniDrawBase();miniBase.key=key;}
