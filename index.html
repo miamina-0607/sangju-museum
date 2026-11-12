@@ -2320,7 +2320,7 @@ function gamePeer(o,pr,n){
 /* ---------- 가을 감나무 흔들기: 나무가 흔들리고 감이 툭툭 떨어진다. 가끔 까치가 날아와 감을 물어 간다 ---------- */
 const fallen=[],_fm=new THREE.Matrix4(),_fz=new THREE.Matrix4().makeScale(0,0,0);
 function setFruit(T,i,on){T.on[i]=on;if(on)_fm.makeTranslation(FRUIT_POS[i].x,FRUIT_POS[i].y,FRUIT_POS[i].z);T.fr.setMatrixAt(i,on?_fm:_fz);T.fr.instanceMatrix.needsUpdate=true;}
-function regrowFruit(){for(const T of PERSIMS)for(let i=0;i<T.on.length;i++)if(!T.on[i])setFruit(T,i,true);for(const f of fallen)scene.remove(f.m);fallen.length=0;}
+function regrowFruit(){for(const n of NPCS){n.fetch=null;if(n.carry){n.carry.parent&&n.carry.parent.remove(n.carry);n.carry=null;}}for(const T of PERSIMS)for(let i=0;i<T.on.length;i++)if(!T.on[i])setFruit(T,i,true);for(const f of fallen)scene.remove(f.m);fallen.length=0;}
 function nearPersim(x,z){let b=-1,bd=3.6;PERSIMS.forEach((T,i)=>{const d=Math.hypot(x-T.g.position.x,z-T.g.position.z);if(d<bd){bd=d;b=i;}});return b;}
 const persimGeo=new THREE.SphereGeometry(.14,12,10);
 function makeMagpie(){const g=new THREE.Group(),blk=new THREE.MeshPhongMaterial({color:L('#15181d'),shininess:60,specular:0x2a3a5a}),wh=mat('#f4f4f2');
@@ -2740,6 +2740,7 @@ function npcBuild(n,gl){
   n.mixer=new THREE.AnimationMixer(m);n.acts={};
   for(const c of gl.animations)n.acts[c.name]=n.mixer.clipAction(c);
   n.sleepClip=n.d.clips.idle.replace('_Idle','_Sleep');
+  n.headBone=m.getObjectByName('head')||null;
   const zz=labelSprite();zz.visible=false;g.add(zz);n.zz=zz;drawZz(zz);
   n.g=g;n.y=heightAt(n.x,n.z);g.position.set(n.x,n.y,n.z);g.rotation.y=n.yaw;scene.add(g);
   npcPlay(n,n.d.clips.idle,0);n.state='idle';n.clip=n.d.clips.idle;n.until=performance.now()+1500+Math.random()*3000;
@@ -2755,8 +2756,28 @@ function npcLoad(i){
   document.head.appendChild(el);
 }
 setTimeout(()=>npcLoad(0),400);
+/* 가을: 감이 떨어져 있으면 치와와가 가끔(절반쯤) 달려가 물고 도망간다. 동물은 각자 화면에서 움직이므로 내 화면에서만 일어나는 일 */
+function npcLine(n,now,t){if(!n.bub)return;drawBubble(n.bub,t);n.bub.visible=true;n.sayUntil=now+3600;n.talkCool=now+8000;}
+function npcGo(n,now,x,z,run){n.state='walk';n.tx=x;n.tz=z;n.speed=run?n.d.run:n.d.walk;n.clip=run?n.d.clips.run:n.d.clips.walk;n.prog=now;n.px=n.x;n.pz=n.z;}
+function dogGrab(n,f,now){takeFallen(f);n.fetch=null;
+  const c=new THREE.Mesh(persimGeo,fruitMat);c.castShadow=true;const hb=n.headBone;
+  if(hb){const ws=new THREE.Vector3();hb.getWorldScale(ws);c.scale.setScalar(.7/(ws.x||1));c.position.set(0,.02,.21);hb.add(c);}
+  else{c.scale.setScalar(.7);c.position.set(0,n.top*.6,.3);n.g.add(c);}
+  n.carry=c;n.carryUntil=now+9000;npcLine(n,now,'앙! 내 거다~ 🍊');
+  const t=npcPick(n,true);if(t)npcGo(n,now,t[0],t[1],true);else{n.state='idle';n.clip=n.d.clips.idle;n.until=now+3000;}}
+function dogPersim(n,now){
+  if(n.fetch){const f=n.fetch;
+    if(f.taken||f.m.parent!==scene||n.state!=='walk'){n.fetch=null;if(n.state==='walk'){n.state='idle';n.clip=n.d.clips.idle;n.until=now+1500;}if(f.taken)npcLine(n,now,'앗, 놓쳤다! 왈!');return;}
+    n.tx=f.m.position.x;n.tz=f.m.position.z;const l=Math.hypot(n.tx-n.x,n.tz-n.z);
+    if(l<.55||(l<1.1&&now-n.prog>1200&&Math.hypot(n.x-n.px,n.z-n.pz)<.4))dogGrab(n,f,now);return;}
+  if(n.carry){if(now>n.carryUntil&&n.state!=='walk'){n.carry.parent&&n.carry.parent.remove(n.carry);n.carry=null;npcLine(n,now,'냠냠… 달다! 🍊');}return;}
+  if(season!=='autumn'||n.state==='sleep'||now<(n.fetchCool||0))return;
+  for(const f of fallen){if(f.dogSeen||now-f.born<2200||(!f.rest&&f.m.position.y>Math.max(heightAt(f.m.position.x,f.m.position.z),0)+.35)||f.taken||f.bird||f.m.parent!==scene)continue;f.dogSeen=true;
+    if(Math.hypot(f.m.position.x-n.x,f.m.position.z-n.z)>18||Math.random()>.5)continue;
+    n.fetch=f;n.fetchCool=now+5000;npcGo(n,now,f.m.position.x,f.m.position.z,true);npcLine(n,now,'어? 감이다! 왈왈!');return;}}
 function updateNPCs(dt,now,near){
   for(const n of NPCS){if(!n.g)continue;const d=n.d;
+    if(d.key==='chihuahua')dogPersim(n,now);
     if(n.state==='walk'){
       const dx=n.tx-n.x,dz=n.tz-n.z,l=Math.hypot(dx,dz);
       if(l<.25){npcStart(n,now);}
