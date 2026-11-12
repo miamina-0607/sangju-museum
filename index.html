@@ -795,6 +795,19 @@ const FT={x:96,z:14};const fountain={};
  /* 아래 물줄기 텍스처는 쓰지 않지만, 난수 순서를 그대로 두어 숲·나무 배치가 바뀌지 않게 한다 */
  canvasTex(64,256,(c,w,h)=>{c.clearRect(0,0,w,h);for(let i=0;i<46;i++){c.fillStyle='rgba(235,245,255,'+(.25+R()*.45)+')';c.fillRect(R()*w,R()*h,1.5+R()*2,10+R()*34);}},true,true).dispose();
  Object.assign(fountain,{g,water,bw,wt,jets:[],jetMat:null,floorM:null,floor0:null});
+ /* 무지개: 물보라 위에 걸린 반원. 늘 보는 사람 쪽을 향하고, 바깥 빨강 → 안쪽 보라, 끝은 물안개 속으로 스르르 */
+ {const R0=3.1,R1=3.75,rbU={uOp:{value:0},uT:U.time,uR:{value:new THREE.Vector2(R0,R1)}};
+  const rb=new THREE.Mesh(new THREE.RingGeometry(R0,R1,96,1,0,Math.PI),new THREE.ShaderMaterial({uniforms:rbU,transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,
+   vertexShader:`varying vec2 vP;void main(){vP=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+   fragmentShader:`uniform float uOp,uT;uniform vec2 uR;varying vec2 vP;
+    vec3 hsv(float h){vec3 k=clamp(abs(mod(h*6.+vec3(0.,4.,2.),6.)-3.)-1.,0.,1.);return k*k*(3.-2.*k);}
+    void main(){float r=length(vP),t=(r-uR.x)/(uR.y-uR.x);
+     float edge=smoothstep(0.,.22,t)*smoothstep(1.,.78,t);
+     float foot=smoothstep(.15,1.6,vP.y);
+     float ang=atan(vP.y,vP.x),wave=.82+.18*sin(ang*7.-uT*.9);
+     vec3 c=hsv(t*.78*-1.+.78)*1.05;
+     gl_FragColor=vec4(c*edge*foot*wave*uOp,1.);}`}));
+  rb.position.y=.35;rb.renderOrder=3;rb.frustumCulled=false;g.add(rb);fountain.rainbow=rb;fountain.rbU=rbU;}
  /* 재질: GLB 색을 그대로 쓰고, 대리석·청동·황동만 광택을 준다 */
  const SHINY={Marble_Statue_web:[18,0x2a2a2a],Bronze_Patina_web:[60,0x6a5a3a],Brass_Nozzles_web:[80,0x8a7040],Galv_Steel_web:[50,0x555555],Drum_Top_Wet_web:[70,0x444444],Bowl_Inner_Wet_web:[70,0x444444]};
  function fountainParse(){
@@ -2868,6 +2881,8 @@ function tick(){
   for(const c of clouds){c.position.x+=dt*1.5;if(c.position.x>640)c.position.x=-640;}
   scare.rotation.z=Math.sin(t*.9)*.012;updateWishTree(t);updateGames(now);waveFlags(t);updateMini(now);updateFire(dt);updateSparkles(dt);
   if(scare.visible)updateCloth(t);
+  if(fountain.rainbow){const on=fountain.water.visible?Math.max(0,1-S.n.snow*2)*clamp(S.n.sunI,0,1.2)*.42:0,u=fountain.rbU.uOp;u.value=lerp(u.value,on,1-Math.exp(-dt*2));
+    fountain.rainbow.visible=u.value>.01;if(fountain.rainbow.visible)fountain.rainbow.rotation.y=Math.atan2(camera.position.x-FT.x,camera.position.z-FT.z);}
   if(fountain.water.visible){fountain.wt.offset.x+=dt*.03;fountain.wt.offset.y+=dt*.02;if(fountain.jetMat)fountain.jetMat.opacity=.56+Math.sin(t*9)*.06+Math.sin(t*23)*.04;}
   doorRingMat.opacity=.35+Math.sin(t*2.4)*.2;
   {const nd=entered&&me.alt<1?nearAnyDoor(me.x,me.z):null;if(nd!==nearDoor){nearDoor=nd;showDoor(nd);}}
